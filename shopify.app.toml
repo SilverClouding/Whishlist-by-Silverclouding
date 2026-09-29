@@ -1,7 +1,7 @@
 # Replace the production host before deploying.
 client_id = "6011dc02944b02d6c4b8a3233901dffc"
-name = "Saitriq : Wishlist"
-application_url = "https://saitriq-wishlist.vercel.app"
+name = "Silverclouding : Wishlist"
+application_url = "https://silverclouding-wishlist.vercel.app"
 embedded = true
 
 [access_scopes]
@@ -19,11 +19,11 @@ api_version = "2026-10"
   topics = [ "app/scopes_update" ]
 
 [auth]
-redirect_urls = [ "https://saitriq-wishlist.vercel.app/auth/callback" ]
+redirect_urls = [ "https://silverclouding-wishlist.vercel.app/auth/callback" ]
 
 [app_proxy]
-url = "https://saitriq-wishlist.vercel.app/apps/saitriq-wishlist"
-subpath = "saitriq-wishlist"
+url = "https://silverclouding-wishlist.vercel.app/apps/silverclouding-wishlist"
+subpath = "silverclouding-wishlist"
 prefix = "apps"
 
 [build]

@@ -1,4 +1,4 @@
-{% comment %}CSS loaded globally by the Saitriq Wishlist app embed block{% endcomment %}
+{% comment %}CSS loaded globally by the Silverclouding Wishlist app embed block{% endcomment %}
 
 {%- comment -%}
   Collection wishlist icons block.
@@ -54,17 +54,17 @@
 <script>
   (() => {
     const whenEmbedReady = (fn) => {
-      if (window.saitriqEmbedEnabled) { fn(); return; }
-      document.addEventListener('saitriq:embed-ready', fn, { once: true });
+      if (window.silvercloudingEmbedEnabled) { fn(); return; }
+      document.addEventListener('silverclouding:embed-ready', fn, { once: true });
     };
 
     whenEmbedReady(() => {
-      if (window.saitriqWishlistCollectionLoaded) return;
-      window.saitriqWishlistCollectionLoaded = true;
+      if (window.silvercloudingWishlistCollectionLoaded) return;
+      window.silvercloudingWishlistCollectionLoaded = true;
 
-      const storageKey      = 'saitriq_wishlist';
-      const visitorStorageKey = 'saitriq_wishlist_visitor';
-      const endpoint        = '/apps/saitriq-wishlist';
+      const storageKey      = 'silverclouding_wishlist';
+      const visitorStorageKey = 'silverclouding_wishlist_visitor';
+      const endpoint        = '/apps/silverclouding-wishlist';
 
       // Find the <template> rendered by Liquid
       const tpl = document.querySelector('[data-sai-collection-tpl]');
@@ -81,7 +81,7 @@
       };
       const saveItems = (items) => {
         localStorage.setItem(storageKey, JSON.stringify(items));
-        window.dispatchEvent(new CustomEvent('saitriq:wishlist-updated'));
+        window.dispatchEvent(new CustomEvent('silverclouding:wishlist-updated'));
       };
 
       // ── View — class only, no innerHTML ──────────────────────────────────
@@ -113,7 +113,7 @@
         if (operation === 'add' && idx < 0) items.push({ ...toLocalItem(item), addedAt: new Date().toISOString() });
         if (operation === 'remove' && idx >= 0) items.splice(idx, 1);
         saveItems(items);
-        window.dispatchEvent(new CustomEvent('saitriq:wishlist-toast', {
+        window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', {
           detail: {
             message: operation === 'add' ? 'Added to wishlist' : 'Removed from wishlist',
             image: item.productImage || '',
@@ -150,7 +150,7 @@
         if (res.status === 429) {
           const data = await res.json().catch(() => ({}));
           if (operation === 'remove' || operation === 'clear') return readItems();
-          window.dispatchEvent(new CustomEvent('saitriq:wishlist-toast', {
+          window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', {
             detail: { message: data.error || 'Monthly wishlist limit reached.' }
           }));
           return readItems();
@@ -170,7 +170,7 @@
           image: s.productImage || '', price: s.productPrice || '', addedAt: s.createdAt
         }));
         saveItems(synced);
-        window.dispatchEvent(new CustomEvent('saitriq:wishlist-toast', {
+        window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', {
           detail: {
             message: operation === 'add' ? 'Added to wishlist' : 'Removed from wishlist',
             image: item.productImage || '',
@@ -289,7 +289,7 @@
       window.addEventListener('storage', (e) => { if (e.key === storageKey) scan(); });
 
       // Re-render all collection buttons when wishlist changes
-      window.addEventListener('saitriq:wishlist-updated', () => {
+      window.addEventListener('silverclouding:wishlist-updated', () => {
         document.querySelectorAll('[data-sai-collection-wishlist]').forEach((btn) => {
           const card = btn.parentElement;
           const link = card && card.querySelector('a[href*="/products/"]');

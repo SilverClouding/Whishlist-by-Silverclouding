@@ -1,9 +1,9 @@
 @AGENTS.md
-# Saitriq Wishlist
+# Silverclouding Wishlist
 
 ## Project purpose
 
-Saitriq Wishlist is an embedded Shopify app with a theme app extension. It lets
+Silverclouding Wishlist is an embedded Shopify app with a theme app extension. It lets
 guest and logged-in shoppers save products, view a wishlist page, and gives merchants
 monthly usage visibility and plan information.
 
@@ -11,7 +11,7 @@ monthly usage visibility and plan information.
 
 - React Router 7 with the Shopify React Router app package.
 - Shopify Admin API through the authenticated `admin.graphql` client.
-- Shopify app proxy at `/apps/saitriq-wishlist` for storefront reads and writes.
+- Shopify app proxy at `/apps/silverclouding-wishlist` for storefront reads and writes.
 - App-owned metaobjects declared in `shopify.app.toml`; use `$app:<type>` in API operations.
 - Prisma remains the local store for Shopify sessions and merchant-owned display settings.
 - Theme code lives in `extensions/wishlist-product`.

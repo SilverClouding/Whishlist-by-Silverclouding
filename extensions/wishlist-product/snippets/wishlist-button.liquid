@@ -1,5 +1,5 @@
 {% comment %}
-  Saitriq Wishlist — Product page button (manual install)
+  Silverclouding Wishlist — Product page button (manual install)
   -------------------------------------------------------
   Paste this line anywhere inside your product template
   (e.g. product.liquid, main-product.liquid, product-form.liquid):
@@ -47,9 +47,9 @@
 
 <script>
   (() => {
-    const storageKey = 'saitriq_wishlist';
-    const visitorStorageKey = 'saitriq_wishlist_visitor';
-    const syncEndpoint = '/apps/saitriq-wishlist';
+    const storageKey = 'silverclouding_wishlist';
+    const visitorStorageKey = 'silverclouding_wishlist_visitor';
+    const syncEndpoint = '/apps/silverclouding-wishlist';
     const script = document.currentScript;
     const block = script && script.previousElementSibling;
     const button = block && block.querySelector('[data-sai-wishlist-button]');
@@ -67,10 +67,10 @@
       }
       toast.textContent = message;
       toast.classList.add('is-visible');
-      clearTimeout(window.saitriqWishlistToastTimer);
-      window.saitriqWishlistToastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2200);
+      clearTimeout(window.silvercloudingWishlistToastTimer);
+      window.silvercloudingWishlistToastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2200);
     };
-    window.addEventListener('saitriq:wishlist-toast', (e) => { if (e.detail?.message) announce(e.detail.message); });
+    window.addEventListener('silverclouding:wishlist-toast', (e) => { if (e.detail?.message) announce(e.detail.message); });
 
     // ── State ──────────────────────────────────────────────────────────────
     const productId    = button.dataset.productId;
@@ -88,7 +88,7 @@
     };
     const saveWishlist = (items) => {
       try { localStorage.setItem(storageKey, JSON.stringify(items)); } catch {}
-      window.dispatchEvent(new CustomEvent('saitriq:wishlist-updated'));
+      window.dispatchEvent(new CustomEvent('silverclouding:wishlist-updated'));
     };
     const getVisitorId = () => {
       let id = localStorage.getItem(visitorStorageKey);
@@ -111,7 +111,7 @@
       if (operation === 'add' && idx < 0) items.push({ id: item.productId, handle: item.productHandle, title: item.productTitle, image: item.productImage || '', price: item.productPrice || '', addedAt: new Date().toISOString() });
       if (operation === 'remove' && idx >= 0) items.splice(idx, 1);
       saveWishlist(items);
-      window.dispatchEvent(new CustomEvent('saitriq:wishlist-toast', { detail: { message: operation === 'add' ? 'Added to wishlist' : 'Removed from wishlist' } }));
+      window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', { detail: { message: operation === 'add' ? 'Added to wishlist' : 'Removed from wishlist' } }));
       return items;
     };
 
@@ -136,13 +136,13 @@
       if (!Array.isArray(data.items)) { customerAuthenticated = false; return sync(operation, item); }
       const synced = data.items.map((s) => ({ id: s.productId, handle: s.productHandle, title: s.productTitle, image: s.productImage || '', price: s.productPrice || '', addedAt: s.createdAt }));
       saveWishlist(synced);
-      window.dispatchEvent(new CustomEvent('saitriq:wishlist-toast', { detail: { message: operation === 'add' ? 'Added to wishlist' : 'Removed from wishlist' } }));
+      window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', { detail: { message: operation === 'add' ? 'Added to wishlist' : 'Removed from wishlist' } }));
       return synced;
     };
 
     // ── Initial sync ───────────────────────────────────────────────────────
     const initialSync = (() => {
-      if (window.saitriqWishlistSyncPromise) return window.saitriqWishlistSyncPromise;
+      if (window.silvercloudingWishlistSyncPromise) return window.silvercloudingWishlistSyncPromise;
       const run = (async () => {
         const res = await fetch(syncEndpoint, { credentials: 'same-origin' }).catch(() => null);
         if (!res || !res.ok) { refresh(); return; }
@@ -160,8 +160,8 @@
         saveWishlist(synced);
         refresh();
       })();
-      window.saitriqWishlistSyncPromise = run.finally(() => { window.saitriqWishlistSyncPromise = null; });
-      return window.saitriqWishlistSyncPromise;
+      window.silvercloudingWishlistSyncPromise = run.finally(() => { window.silvercloudingWishlistSyncPromise = null; });
+      return window.silvercloudingWishlistSyncPromise;
     })();
 
     // ── Button click ───────────────────────────────────────────────────────
@@ -184,7 +184,7 @@
     });
 
     refresh();
-    window.addEventListener('saitriq:wishlist-updated', refresh);
+    window.addEventListener('silverclouding:wishlist-updated', refresh);
     window.addEventListener('storage', (e) => { if (e.key === storageKey) refresh(); });
   })();
 </script>

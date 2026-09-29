@@ -1,16 +1,16 @@
 {% comment %}
-  Saitriq Wishlist — App Embed block
+  Silverclouding Wishlist — App Embed block
   ─────────────────────────────────────────────────────────────────────────────
   Master ON/OFF switch for the entire wishlist app.
 
   Merchants enable/disable from:
-    Online Store → Themes → Customize → App embeds → Saitriq Wishlist
+    Online Store → Themes → Customize → App embeds → Silverclouding Wishlist
 
   When ENABLED:
     - Loads wishlist.css globally
     - Fetches merchant settings from the app proxy
     - Injects CSS custom properties for toast appearance onto :root
-    - Sets window.saitriqEmbedEnabled = true
+    - Sets window.silvercloudingEmbedEnabled = true
     - All wishlist blocks check this flag before activating
 
   When DISABLED:
@@ -21,7 +21,7 @@
 
 <script>
   (() => {
-    const endpoint = '/apps/saitriq-wishlist';
+    const endpoint = '/apps/silverclouding-wishlist';
 
     // Apply toast CSS custom properties from merchant settings
     const applyToastSettings = (settings) => {
@@ -51,15 +51,15 @@
       .catch(() => {})
       .finally(() => {
         // Always activate — even if settings fetch fails
-        window.saitriqEmbedEnabled = true;
-        document.dispatchEvent(new CustomEvent('saitriq:embed-ready'));
+        window.silvercloudingEmbedEnabled = true;
+        document.dispatchEvent(new CustomEvent('silverclouding:embed-ready'));
       });
   })();
 </script>
 
 {% schema %}
 {
-  "name": "Saitriq Wishlist",
+  "name": "Silverclouding Wishlist",
   "target": "body",
   "settings": []
 }

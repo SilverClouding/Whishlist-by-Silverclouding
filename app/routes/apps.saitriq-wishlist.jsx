@@ -22,7 +22,7 @@ const json = (data, init = {}) =>
     headers: {
       "Content-Type": "application/json",
       "Cache-Control": "no-store",
-      "X-Saitriq-Wishlist-Version": "proxy-v13",
+      "X-Silverclouding-Wishlist-Version": "proxy-v13",
       ...(init.headers || {}),
     },
   });

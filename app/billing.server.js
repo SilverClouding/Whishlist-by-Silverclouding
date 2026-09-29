@@ -284,7 +284,7 @@ export const downgradeToFree = async (admin, shop) => {
 export const ADDON = {
   saves: 5000,   // extra saves granted per purchase
   price: 5,      // price in USD (e.g. 5 = $5.00)
-  name: "Saitriq Wishlist: +5,000 saves", // shown on Shopify billing page
+  name: "Silverclouding Wishlist: +5,000 saves", // shown on Shopify billing page
 };
 
 const APP_PURCHASE_ONE_TIME_CREATE = `#graphql

@@ -1,5 +1,5 @@
 /**
- * Check whether the Saitriq Wishlist app embed block is enabled
+ * Check whether the Silverclouding Wishlist app embed block is enabled
  * in the merchant's currently published theme.
  *
  * Method: fetch config/settings_data.json from the main theme,
@@ -10,7 +10,7 @@
  */
 
 const EXTENSION_UID = "65da582c-8dde-54ca-43f2-ee621799e5d650865d87";
-const APP_HANDLE = "saitriq-wishlist";
+const APP_HANDLE = "silverclouding-wishlist";
 
 const GET_MAIN_THEME = `#graphql
   query GetMainTheme {

@@ -1,5 +1,5 @@
 {% comment %}
-  Saitriq Wishlist — Collection page auto-inject (manual install for legacy themes)
+  Silverclouding Wishlist — Collection page auto-inject (manual install for legacy themes)
   ---------------------------------------------------------------------------------
   Paste this line ONCE anywhere that loads on collection/product pages
   (e.g. theme.liquid just before </body>, or collection.liquid):
@@ -40,12 +40,12 @@
 
 <script>
   (() => {
-    if (window.saitriqWishlistCollectionLoaded) return;
-    window.saitriqWishlistCollectionLoaded = true;
+    if (window.silvercloudingWishlistCollectionLoaded) return;
+    window.silvercloudingWishlistCollectionLoaded = true;
 
-    const storageKey       = 'saitriq_wishlist';
-    const visitorStorageKey = 'saitriq_wishlist_visitor';
-    const endpoint         = '/apps/saitriq-wishlist';
+    const storageKey       = 'silverclouding_wishlist';
+    const visitorStorageKey = 'silverclouding_wishlist_visitor';
+    const endpoint         = '/apps/silverclouding-wishlist';
     const tpl              = document.getElementById('sai-collection-btn-tpl');
     if (!tpl) return;
 
@@ -58,7 +58,7 @@
     };
     const saveItems = (items) => {
       localStorage.setItem(storageKey, JSON.stringify(items));
-      window.dispatchEvent(new CustomEvent('saitriq:wishlist-updated'));
+      window.dispatchEvent(new CustomEvent('silverclouding:wishlist-updated'));
     };
     const getVisitorId = () => {
       let id = localStorage.getItem(visitorStorageKey);
@@ -90,10 +90,10 @@
         toast.textContent = message;
       }
       toast.classList.add('is-visible');
-      clearTimeout(window.saitriqWishlistToastTimer);
-      window.saitriqWishlistToastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2200);
+      clearTimeout(window.silvercloudingWishlistToastTimer);
+      window.silvercloudingWishlistToastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2200);
     };
-    window.addEventListener('saitriq:wishlist-toast', (e) => { if (e.detail?.message) announce(e.detail.message, e.detail.image, e.detail.title); });
+    window.addEventListener('silverclouding:wishlist-toast', (e) => { if (e.detail?.message) announce(e.detail.message, e.detail.image, e.detail.title); });
 
     // ── View — class only, no innerHTML ───────────────────────────────────
     const renderButton = (btn, productId) => {
@@ -257,7 +257,7 @@
     window.addEventListener('storage', (e) => { if (e.key === storageKey) scan(); });
 
     // Re-render all buttons when wishlist changes
-    window.addEventListener('saitriq:wishlist-updated', () => {
+    window.addEventListener('silverclouding:wishlist-updated', () => {
       document.querySelectorAll('[data-sai-collection-wishlist]').forEach((btn) => {
         const card = btn.parentElement;
         const link = card && card.querySelector('a[href*="/products/"]');
