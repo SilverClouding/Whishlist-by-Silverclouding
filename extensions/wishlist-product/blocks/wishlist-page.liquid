@@ -387,7 +387,7 @@
           localStorage.setItem(storageKey, JSON.stringify(getItems().filter((s) => String(s.id) !== String(item.id))));
           window.dispatchEvent(new CustomEvent('silverclouding:wishlist-updated'));
           window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', { detail: { message: 'Removed from wishlist' } }));
-          render();
+          // ↑ wishlist-updated event fires render() via the listener — no direct call needed
           return;
         }
         const response = await fetch(syncEndpoint, {
@@ -403,7 +403,7 @@
         localStorage.setItem(storageKey, JSON.stringify(serverItems));
         window.dispatchEvent(new CustomEvent('silverclouding:wishlist-updated'));
         window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', { detail: { message: 'Removed from wishlist' } }));
-        render();
+        // ↑ wishlist-updated event fires render() via the listener — no direct call needed
       } catch (error) {
         emptyMessage.textContent = error.message;
         emptyMessage.hidden = false;
@@ -413,6 +413,12 @@
     };
 
     const render = async () => {
+      // Guard: if a render is already in flight, skip this call.
+      // Prevents the async Promise.all from appending cards twice when
+      // render() is triggered concurrently (e.g. by rapid updates).
+      if (render._pending) return;
+      render._pending = true;
+      try {
       const items = getItems();
       page.querySelector('h2').textContent = settings.heading;
       emptyMessage.textContent = settings.emptyMessage;
@@ -425,6 +431,9 @@
       // buildCard is async (fetches variant data) — render all in parallel
       const cards = await Promise.all(items.map((item) => buildCard(item)));
       cards.forEach((card) => itemsContainer.append(card));
+      } finally {
+        render._pending = false;
+      }
     };
 
     clearButton.addEventListener('click', async () => {
@@ -439,7 +448,7 @@
           window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', {
             detail: { message: 'Wishlist cleared' }
           }));
-          render();
+          // ↑ wishlist-updated event fires render() via the listener — no direct call needed
           return;
         }
         const response = await fetch(syncEndpoint, {
@@ -458,7 +467,7 @@
         }
         localStorage.setItem(storageKey, JSON.stringify(data.items));
         window.dispatchEvent(new CustomEvent('silverclouding:wishlist-updated'));
-        render();
+        // ↑ wishlist-updated event fires render() via the listener — no direct call needed
       } catch (error) {
         emptyMessage.textContent = error.message;
         emptyMessage.hidden = false;

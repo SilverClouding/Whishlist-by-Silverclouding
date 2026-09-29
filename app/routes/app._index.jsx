@@ -222,6 +222,13 @@ export default function WishlistDashboard() {
             Shoppers can see the wishlist buttons on your storefront.
           </s-banner>
         )}
+        {embed.enabled === null && (
+          <s-banner tone="warning" heading="App embed status could not be verified">
+            We could not read your theme settings. If you have already enabled the app embed
+            in Theme Editor, your storefront should be working.{" "}
+            <s-link href="javascript:window.location.reload()">Refresh to check again</s-link>
+          </s-banner>
+        )}
 
         <s-grid gridTemplateColumns="repeat(auto-fit, minmax(260px, 1fr))" gap="base">
           {/* Embed toggle card */}
@@ -231,7 +238,7 @@ export default function WishlistDashboard() {
                 <s-heading>App embed</s-heading>
                 {embed.enabled === true && <s-badge tone="success">Enabled</s-badge>}
                 {embed.enabled === false && <s-badge tone="critical">Not enabled</s-badge>}
-                {embed.enabled === null && <s-badge tone="neutral">Unknown</s-badge>}
+                {embed.enabled === null && <s-badge tone="attention">Check Theme Editor</s-badge>}
               </s-stack>
               <s-paragraph>
                 The app embed loads the wishlist CSS globally and activates the heart button
@@ -241,9 +248,9 @@ export default function WishlistDashboard() {
               <s-button
                 href={`https://${shop}/admin/themes/current/editor?context=apps`}
                 target="_blank"
-                variant={embed.enabled ? "secondary" : "primary"}
+                variant={embed.enabled === true ? "secondary" : "primary"}
               >
-                {embed.enabled ? "Manage in Theme Editor" : "Enable in Theme Editor"}
+                {embed.enabled === true ? "Manage in Theme Editor" : "Open App Embeds"}
               </s-button>
             </s-grid>
           </s-box>
@@ -345,7 +352,7 @@ export default function WishlistDashboard() {
                 We respond to all support requests within 24 hours.
               </s-paragraph>
               <s-button
-                href="mailto:info@silverclouding.com"
+                href="mailto:support@silverclouding.com"
                 variant="secondary"
               >
                 Contact support

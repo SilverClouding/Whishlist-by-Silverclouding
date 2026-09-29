@@ -203,15 +203,24 @@
         return match ? decodeURIComponent(match[1]) : '';
       };
 
-      // Deduplicated product links on the page
+      // All product links on the page — no global deduplication by handle.
+      // Each card gets its own button; the per-card guards below prevent duplicates.
       const productLinks = () => [...document.querySelectorAll('a[href*="/products/"]')]
-        .filter((a) => handleFromLink(a))
-        .filter((a, i, arr) => arr.findIndex((b) => handleFromLink(b) === handleFromLink(a)) === i);
+        .filter((a) => handleFromLink(a));
+
+      // Card selector — covers Dawn, Sense, Craft, Debut, Brooklyn, Horizon,
+      // and most third-party themes. Ordered from specific to general.
+      const CARD_SELECTOR = [
+        'li', 'article',
+        '.card-wrapper', '.product-card-wrapper',
+        '.card', '.product-card', '.grid__item',
+        '[class*="product-card"]', '[class*="product-item"]', '[class*="card--product"]',
+      ].join(', ');
 
       // ── Attach button to a product card ───────────────────────────────────
       const attach = async (link) => {
         const handle = handleFromLink(link);
-        const card = link.closest('li, article, .card, .product-card, [class*="product-card"]');
+        const card = link.closest(CARD_SELECTOR);
         // Guard: skip if no handle, no card, or already attached/pending
         if (!handle || !card || card.dataset.saiWishlistAttaching || card.querySelector('[data-sai-collection-wishlist]')) return;
 

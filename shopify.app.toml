@@ -1,8 +1,9 @@
-# Replace the production host before deploying.
-client_id = "6011dc02944b02d6c4b8a3233901dffc"
-name = "Silverclouding : Wishlist"
-application_url = "https://silverclouding-wishlist.vercel.app"
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "5d4d86dbd557ce786f37d069c7a88aa2"
+application_url = "https://example.com"
 embedded = true
+name = "Whislist by Silverclouding"
 
 [access_scopes]
 scopes = "read_orders,read_themes"
@@ -11,18 +12,18 @@ scopes = "read_orders,read_themes"
 api_version = "2026-10"
 
   [[webhooks.subscriptions]]
-  uri = "/webhooks/app/uninstalled"
+  uri = "https://example.com/webhooks/app/uninstalled"
   topics = [ "app/uninstalled" ]
 
   [[webhooks.subscriptions]]
-  uri = "/webhooks/app/scopes_update"
+  uri = "https://example.com/webhooks/app/scopes_update"
   topics = [ "app/scopes_update" ]
 
 [auth]
-redirect_urls = [ "https://silverclouding-wishlist.vercel.app/auth/callback" ]
+redirect_urls = [ "https://example.com/auth/callback" ]
 
 [app_proxy]
-url = "https://silverclouding-wishlist.vercel.app/apps/silverclouding-wishlist"
+url = "https://example.com/apps/silverclouding-wishlist"
 subpath = "silverclouding-wishlist"
 prefix = "apps"
 
