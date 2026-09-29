@@ -1,0 +1,30 @@
+# Replace the production host before deploying.
+client_id = "6011dc02944b02d6c4b8a3233901dffc"
+name = "Saitriq : Wishlist"
+application_url = "https://saitriq-wishlist.vercel.app"
+embedded = true
+
+[access_scopes]
+scopes = "read_orders,read_themes"
+
+[webhooks]
+api_version = "2026-10"
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/uninstalled"
+  topics = [ "app/uninstalled" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/scopes_update"
+  topics = [ "app/scopes_update" ]
+
+[auth]
+redirect_urls = [ "https://saitriq-wishlist.vercel.app/auth/callback" ]
+
+[app_proxy]
+url = "https://saitriq-wishlist.vercel.app/apps/saitriq-wishlist"
+subpath = "saitriq-wishlist"
+prefix = "apps"
+
+[build]
+automatically_update_urls_on_dev = true
