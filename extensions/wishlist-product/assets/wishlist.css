@@ -211,6 +211,7 @@
   color: inherit;
   cursor: pointer;
   text-decoration: underline;
+  text-align: left;
 }
 
 .sai-wishlist-page__info {

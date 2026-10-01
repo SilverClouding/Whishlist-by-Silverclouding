@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useLoaderData } from "react-router";
 import { authenticate } from "../shopify.server";
 import { currentUsage } from "../db.wishlist.server";
-import { getActivePlan, syncSubscriptionFromShopify, getMonthlyAddonSaves } from "../billing.server";
-import { monthlyLimit, getPlan } from "../plans";
+import { getPlanEntitlement, getMonthlyAddonSaves } from "../billing.server";
+import { getPlan } from "../plans";
 import { checkEmbedEnabled } from "../embed.server";
 
 export const loader = async ({ request }) => {
@@ -11,15 +11,16 @@ export const loader = async ({ request }) => {
   const shop = session.shop;
   const month = new Date().toISOString().slice(0, 7);
 
-  const [planId, used, embed, addonSaves] = await Promise.all([
-    syncSubscriptionFromShopify(admin, shop).catch(() => getActivePlan(shop)),
+  const [entitlement, used, embed, addonSaves] = await Promise.all([
+    getPlanEntitlement(shop, month, admin),
     currentUsage(shop, month),
     checkEmbedEnabled(admin),
     getMonthlyAddonSaves(shop, month),
   ]);
 
+  const planId = entitlement.planId;
   const plan = getPlan(planId);
-  const limit = monthlyLimit(planId);
+  const limit = entitlement.planLimit;
   const effLimit = Number.isFinite(limit) ? limit + addonSaves : Infinity;
 
   return {

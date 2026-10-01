@@ -212,9 +212,14 @@
       // and most third-party themes. Ordered from specific to general.
       const CARD_SELECTOR = [
         'li', 'article',
-        '.card-wrapper', '.product-card-wrapper',
-        '.card', '.product-card', '.grid__item',
-        '[class*="product-card"]', '[class*="product-item"]', '[class*="card--product"]',
+        '.card-wrapper', 
+        '.product-card-wrapper',
+        '.card', 
+        '.product-card', 
+        '.grid__item',
+        {% comment %} '[class*="product-card"]',  {% endcomment %}
+        '[class*="product-item"]', 
+        '[class*="card--product"]',
       ].join(', ');
 
       // ── Attach button to a product card ───────────────────────────────────

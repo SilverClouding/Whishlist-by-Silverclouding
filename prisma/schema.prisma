@@ -8,7 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Session {
   id                  String    @id
   shop                String
@@ -89,6 +88,46 @@ model ActiveSubscription {
   currentPeriodEnd     DateTime?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
+}
+
+model MonthlyPlanPurchase {
+  id             Int      @id @default(autoincrement())
+  shop           String
+  month          String
+  planId         String
+  billingId      String   @unique @map("subscriptionId")
+  purchaseType   String   @default("base")
+  createdAt      DateTime @default(now())
+
+  @@index([shop, month])
+}
+
+model PlanPurchaseHistory {
+  id               Int      @id @default(autoincrement())
+  shop             String
+  planId           String
+  purchaseType     String
+  amount           Float
+  currencyCode     String   @default("USD")
+  eventKey         String   @unique
+  subscriptionId   String?
+  billingPeriodEnd DateTime?
+  occurredAt       DateTime @default(now())
+
+  @@index([shop, occurredAt])
+  @@index([shop, subscriptionId])
+}
+
+model ScheduledPlanChange {
+  id             Int      @id @default(autoincrement())
+  shop           String   @unique
+  planId         String
+  previousPlanId String
+  effectiveMonth String
+  effectiveAt    DateTime?
+  subscriptionId String?  @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model AddonPurchase {
