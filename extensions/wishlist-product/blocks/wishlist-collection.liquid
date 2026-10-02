@@ -88,7 +88,7 @@
       const renderButton = (button, productId) => {
         const saved = readItems().some((i) => String(i.id) === String(productId));
         button.classList.toggle('is-active', saved);
-        button.setAttribute('aria-label', saved ? 'Remove from wishlist' : 'Add to wishlist');
+        button.setAttribute('aria-label', saved ? {{ 'wishlist.remove_from_wishlist' | t | json }} : {{ 'wishlist.add_to_wishlist' | t | json }});
       };
 
       // ── Visitor ID ────────────────────────────────────────────────────────
@@ -115,7 +115,7 @@
         saveItems(items);
         window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', {
           detail: {
-            message: operation === 'add' ? 'Added to wishlist' : 'Removed from wishlist',
+            message: operation === 'add' ? {{ 'wishlist.added_to_wishlist' | t | json }} : {{ 'wishlist.removed_from_wishlist' | t | json }},
             image: item.productImage || '',
             title: item.productTitle || ''
           }
@@ -151,7 +151,7 @@
           const data = await res.json().catch(() => ({}));
           if (operation === 'remove' || operation === 'clear') return readItems();
           window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', {
-            detail: { message: data.error || 'Monthly wishlist limit reached.' }
+            detail: { message: data.error || {{ 'wishlist.limit_reached' | t | json }} }
           }));
           return readItems();
         }
@@ -172,7 +172,7 @@
         saveItems(synced);
         window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', {
           detail: {
-            message: operation === 'add' ? 'Added to wishlist' : 'Removed from wishlist',
+            message: operation === 'add' ? {{ 'wishlist.added_to_wishlist' | t | json }} : {{ 'wishlist.removed_from_wishlist' | t | json }},
             image: item.productImage || '',
             title: item.productTitle || ''
           }

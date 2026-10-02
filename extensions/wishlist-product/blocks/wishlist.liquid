@@ -34,7 +34,7 @@
       <span class="sai-wishlist__icon sai-wishlist__icon--default" aria-hidden="true">
         {{ custom_svg }}
       </span>
-      <span class="sai-wishlist__icon sai-wishlist__icon--active" aria-hidden="true">
+      <span class="sai-wishlist__icon sai-wishlist__icon--active" aria-hidden="true" style="display:none">
         {{ custom_svg }}
       </span>
     {% else %}
@@ -50,7 +50,7 @@
         </svg>
       </span>
 
-      <span class="sai-wishlist__icon sai-wishlist__icon--active" aria-hidden="true">
+      <span class="sai-wishlist__icon sai-wishlist__icon--active" aria-hidden="true" style="display:none">
         <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
@@ -58,7 +58,7 @@
     {% endif %}
 
     {% if show_label %}
-      <span class="sai-wishlist__label" data-sai-wishlist-label>{{ label_add }}</span>
+      <span class="sai-wishlist__label" data-sai-wishlist-label>{{ label_add | escape }}</span>
     {% endif %}
   </button>
 </div>
@@ -89,50 +89,11 @@
     const productTitle = container.dataset.productTitle;
     const productImage = container.dataset.productImage;
     const productPrice = container.dataset.productPrice;
-    const labelAdd = container.dataset.labelAdd || 'Add to wishlist';
-    const labelSaved = container.dataset.labelSaved || 'Saved';
+    const labelAdd = container.dataset.labelAdd || {{ 'wishlist.add_to_wishlist' | t | json }};
+    const labelSaved = container.dataset.labelSaved || {{ 'wishlist.saved' | t | json }};
 
     let requestInFlight = false;
     let customerAuthenticated = false;
-
-    const announce = (message, image, title) => {
-      let toast = document.querySelector('[data-sai-wishlist-toast]');
-
-      if (!toast) {
-        toast = document.createElement('div');
-        toast.dataset.saiWishlistToast = '';
-        toast.className = 'sai-wishlist__toast';
-        toast.setAttribute('role', 'status');
-        toast.setAttribute('aria-live', 'polite');
-        document.body.append(toast);
-      }
-
-      if (image || title) {
-        toast.innerHTML = `
-          <div class="sai-wishlist__toast-inner">
-            ${image ? `<img class="sai-wishlist__toast-img" src="${image}" alt="" aria-hidden="true">` : ''}
-            <div class="sai-wishlist__toast-body">
-              <span class="sai-wishlist__toast-label">${message}</span>
-              ${title ? `<span class="sai-wishlist__toast-title">${title}</span>` : ''}
-            </div>
-          </div>`;
-      } else {
-        toast.textContent = message;
-      }
-
-      toast.classList.add('is-visible');
-      clearTimeout(window.silvercloudingWishlistToastTimer);
-
-      window.silvercloudingWishlistToastTimer = setTimeout(() => {
-        toast.classList.remove('is-visible');
-      }, 2200);
-    };
-
-    window.addEventListener('silverclouding:wishlist-toast', (e) => {
-      if (e.detail?.message) {
-        announce(e.detail.message, e.detail.image, e.detail.title);
-      }
-    });
 
     const getWishlist = () => {
       try {
@@ -197,11 +158,11 @@
 
       saveWishlist(items);
 
-      announce(
-        operation === 'add' ? 'Added to wishlist' : 'Removed from wishlist',
-        item.productImage || '',
-        item.productTitle || ''
-      );
+      window.silvercloudingWishlistToast?.({
+        message: operation === 'add' ? {{ 'wishlist.added_to_wishlist' | t | json }} : {{ 'wishlist.removed_from_wishlist' | t | json }},
+        image: item.productImage || '',
+        title: item.productTitle || ''
+      });
 
       return items;
     };
@@ -247,13 +208,11 @@
         const data = await res.json().catch(() => ({}));
 
         if (operation === 'remove' || operation === 'clear') {
-          announce('Removed from wishlist');
+          window.silvercloudingWishlistToast?.({ message: {{ 'wishlist.removed_from_wishlist' | t | json }} });
           return getWishlist();
         }
 
-        announce(
-          data.error || 'Monthly wishlist limit reached. Upgrade your plan.'
-        );
+        window.silvercloudingWishlistToast?.({ message: data.error || {{ 'wishlist.limit_reached' | t | json }} });
 
         return getWishlist();
       }
@@ -281,11 +240,11 @@
 
       saveWishlist(synced);
 
-      announce(
-        operation === 'add' ? 'Added to wishlist' : 'Removed from wishlist',
-        item.productImage || '',
-        item.productTitle || ''
-      );
+      window.silvercloudingWishlistToast?.({
+        message: operation === 'add' ? {{ 'wishlist.added_to_wishlist' | t | json }} : {{ 'wishlist.removed_from_wishlist' | t | json }},
+        image: item.productImage || '',
+        title: item.productTitle || ''
+      });
 
       return synced;
     };
@@ -375,7 +334,7 @@
         if (result) updateView(!saved);
       } catch (error) {
         console.error('Wishlist request failed', error);
-        announce('Wishlist is temporarily unavailable. Please try again.');
+        window.silvercloudingWishlistToast?.({ message: {{ 'wishlist.temporarily_unavailable' | t | json }} });
       } finally {
         button.disabled = false;
         requestInFlight = false;
