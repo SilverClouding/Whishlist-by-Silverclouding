@@ -44,6 +44,55 @@
       root.style.setProperty('--sai-toast-slide', slideY);
     };
 
+    const initWishlistToast = () => {
+      if (window.silvercloudingWishlistToastReady) return;
+      window.silvercloudingWishlistToastReady = true;
+
+      const showToast = (detail = {}) => {
+        const { message, image, title } = detail;
+        if (!message) return;
+
+        let toast = document.querySelector('[data-sai-wishlist-toast]');
+        if (!toast) {
+          toast = document.createElement('div');
+          toast.dataset.saiWishlistToast = '';
+          toast.className = 'sai-wishlist__toast';
+          toast.setAttribute('role', 'status');
+          toast.setAttribute('aria-live', 'polite');
+          document.body.append(toast);
+        }
+
+        if (image || title) {
+          toast.innerHTML = `
+            <div class="sai-wishlist__toast-inner">
+              ${image ? `<img class="sai-wishlist__toast-img" src="${image}" alt="" aria-hidden="true">` : ''}
+              <div class="sai-wishlist__toast-body">
+                <span class="sai-wishlist__toast-label">${message}</span>
+                ${title ? `<span class="sai-wishlist__toast-title">${title}</span>` : ''}
+              </div>
+            </div>
+          `;
+        } else {
+          toast.textContent = message;
+        }
+
+        toast.classList.add('is-visible');
+        clearTimeout(window.silvercloudingWishlistToastTimer);
+        window.silvercloudingWishlistToastTimer = setTimeout(() => {
+          toast.classList.remove('is-visible');
+        }, 2200);
+      };
+
+      window.silvercloudingWishlistToast = showToast;
+      window.addEventListener('silverclouding:wishlist-toast', (event) => {
+        if (event.detail?.message) {
+          showToast(event.detail);
+        }
+      });
+    };
+
+    initWishlistToast();
+
     // Fetch settings and apply, then activate embed
     fetch(`${endpoint}?api=settings`, { credentials: 'same-origin' })
       .then((r) => r.ok ? r.json() : {})

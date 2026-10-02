@@ -1,4 +1,16 @@
 {
+  "wishlist": {
+    "add_to_wishlist": "Add to wishlist",
+    "saved": "Saved",
+    "remove_from_wishlist": "Remove from wishlist",
+    "added_to_wishlist": "Added to wishlist",
+    "removed_from_wishlist": "Removed from wishlist",
+    "wishlist_cleared": "Wishlist cleared",
+    "limit_reached": "Monthly wishlist limit reached. Upgrade your plan.",
+    "temporarily_unavailable": "Wishlist is temporarily unavailable. Please try again.",
+    "saved_items": "Saved items",
+    "nothing_saved_yet": "Nothing saved yet."
+  },
   "ratings": {
     "stars": {
       "label": "Ratings"

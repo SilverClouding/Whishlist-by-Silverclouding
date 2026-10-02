@@ -17,8 +17,8 @@
   Override any default by passing variables when rendering:
 
     {% render 'wishlist-page',
-       heading:      'Saved items',
-       empty_message:'Nothing saved yet.',
+      heading:      'Saved items',
+      empty_message:'Nothing saved yet.',
        columns:      3,
        show_prices:  true,
        show_remove:  true,
@@ -79,7 +79,7 @@
 {{ 'wishlist.css' | asset_url | stylesheet_tag }}
 
 {% assign wp_heading      = heading       | default: 'My wishlist' %}
-{% assign wp_empty_msg    = empty_message | default: 'You have not saved any products yet.' %}
+{% assign wp_empty_msg    = empty_message | default: 'wishlist.nothing_saved_yet' %}
 {% assign wp_columns      = columns       | default: 4 %}
 {% assign wp_show_prices  = show_prices   | default: true %}
 {% assign wp_show_remove  = show_remove   | default: true %}
@@ -209,7 +209,7 @@
                 try { await fetch(syncEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ operation: 'remove', visitorId: getVisitorId(), productId: item.id, productHandle: item.handle, productTitle: item.title }) }); } catch {}
                 setItems(getItems().filter((s) => String(s.id) !== String(item.id)));
                 dispatch('silverclouding:wishlist-updated');
-                dispatch('silverclouding:wishlist-toast', { message: 'Removed from wishlist' });
+                dispatch('silverclouding:wishlist-toast', { message: {{ 'wishlist.removed_from_wishlist' | t | json }} });
                 render();
                 return;
               }
@@ -222,7 +222,7 @@
               if (!Array.isArray(data.items)) throw new Error('Invalid response');
               setItems(data.items.map((s) => ({ id: s.productId, handle: s.productHandle, title: s.productTitle, image: s.productImage || '', price: s.productPrice || '', addedAt: s.createdAt })));
               dispatch('silverclouding:wishlist-updated');
-              dispatch('silverclouding:wishlist-toast', { message: 'Removed from wishlist' });
+              dispatch('silverclouding:wishlist-toast', { message: {{ 'wishlist.removed_from_wishlist' | t | json }} });
               render();
             } catch (err) {
               emptyEl.textContent = 'Could not remove item. Please try again.';
@@ -246,7 +246,7 @@
           try { await fetch(syncEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ operation: 'clear', visitorId: getVisitorId() }) }); } catch {}
           setItems([]);
           dispatch('silverclouding:wishlist-updated');
-          dispatch('silverclouding:wishlist-toast', { message: 'Wishlist cleared' });
+          dispatch('silverclouding:wishlist-toast', { message: {{ 'wishlist.wishlist_cleared' | t | json }} });
           render();
           return;
         }

@@ -386,7 +386,7 @@
           });
           localStorage.setItem(storageKey, JSON.stringify(getItems().filter((s) => String(s.id) !== String(item.id))));
           window.dispatchEvent(new CustomEvent('silverclouding:wishlist-updated'));
-          window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', { detail: { message: 'Removed from wishlist' } }));
+          window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', { detail: { message: {{ 'wishlist.removed_from_wishlist' | t | json }} } }));
           // ↑ wishlist-updated event fires render() via the listener — no direct call needed
           return;
         }
@@ -402,7 +402,7 @@
         const serverItems = data.items.map((s) => ({ id: s.productId, handle: s.productHandle, title: s.productTitle, image: s.productImage || '', price: s.productPrice || '', addedAt: s.createdAt }));
         localStorage.setItem(storageKey, JSON.stringify(serverItems));
         window.dispatchEvent(new CustomEvent('silverclouding:wishlist-updated'));
-        window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', { detail: { message: 'Removed from wishlist' } }));
+        window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', { detail: { message: {{ 'wishlist.removed_from_wishlist' | t | json }} } }));
         // ↑ wishlist-updated event fires render() via the listener — no direct call needed
       } catch (error) {
         emptyMessage.textContent = error.message;
@@ -446,7 +446,7 @@
           localStorage.setItem(storageKey, '[]');
           window.dispatchEvent(new CustomEvent('silverclouding:wishlist-updated'));
           window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', {
-            detail: { message: 'Wishlist cleared' }
+            detail: { message: {{ 'wishlist.wishlist_cleared' | t | json }} }
           }));
           // ↑ wishlist-updated event fires render() via the listener — no direct call needed
           return;
