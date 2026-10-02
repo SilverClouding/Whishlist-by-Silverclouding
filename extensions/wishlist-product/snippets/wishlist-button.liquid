@@ -1,16 +1,7 @@
-{% comment %}
-  Silverclouding Wishlist — Product page button (manual install)
-  -------------------------------------------------------
-  Paste this line anywhere inside your product template
-  (e.g. product.liquid, main-product.liquid, product-form.liquid):
-
-    {% render 'wishlist-button' %}
-
-  The snippet auto-reads the `product` object from the template context.
-  Pass a custom product if needed:
-
-    {% render 'wishlist-button', product: product %}
-{% endcomment %}
+{% doc %}
+Renders a wishlist toggle for a product.
+@param {product} [product]
+{% enddoc %}
 
 {{ 'wishlist.css' | asset_url | stylesheet_tag }}
 

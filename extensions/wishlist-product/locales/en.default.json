@@ -8,6 +8,9 @@
     "wishlist_cleared": "Wishlist cleared",
     "limit_reached": "Monthly wishlist limit reached. Upgrade your plan.",
     "temporarily_unavailable": "Wishlist is temporarily unavailable. Please try again.",
+    "sold_out": "Sold out",
+    "added_to_cart": "Added to cart",
+    "add_to_cart_error": "Could not add this item to the cart. Please try again.",
     "saved_items": "Saved items",
     "nothing_saved_yet": "Nothing saved yet."
   },

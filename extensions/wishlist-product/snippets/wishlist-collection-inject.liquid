@@ -1,22 +1,9 @@
-{% comment %}
-  Silverclouding Wishlist — Collection page auto-inject (manual install for legacy themes)
-  ---------------------------------------------------------------------------------
-  Paste this line ONCE anywhere that loads on collection/product pages
-  (e.g. theme.liquid just before </body>, or collection.liquid):
-
-    {% render 'wishlist-collection-inject' %}
-
-  The snippet renders a <template> with the heart button HTML.
-  JS clones it onto every product card and toggles .is-active only.
-  No innerHTML injection — icon switching is pure CSS.
-{% endcomment %}
+{% doc %}
+Injects wishlist toggle buttons into collection product cards.
+{% enddoc %}
 
 {{ 'wishlist.css' | asset_url | stylesheet_tag }}
 
-{%- comment -%}
-  <template> holds the button markup. JS clones it for each product card.
-  The default heart uses two spans toggled by CSS .is-active.
-{%- endcomment -%}
 <template id="sai-collection-btn-tpl">
   <button
     type="button"

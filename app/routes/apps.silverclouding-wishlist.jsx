@@ -193,6 +193,8 @@ export const action = async ({ request }) => {
 
     // ── add / remove ──────────────────────────────────────────────────────────
     const productId = String(payload?.productId || "").trim();
+    const variantId = String(payload?.variantId || "").trim();
+    const variantTitle = String(payload?.variantTitle || "").trim();
     const productHandle = String(payload?.productHandle || payload?.productId || "product").trim();
     const productTitle = String(payload?.productTitle || payload?.productHandle || "Product").trim();
 
@@ -213,7 +215,7 @@ export const action = async ({ request }) => {
     if (operation === "add") {
       if (customerId) {
         const result = await upsertWishlistItem(shop, customerId, {
-          productId, productHandle, productTitle,
+          productId, variantId, variantTitle, productHandle, productTitle,
           productImage: payload.productImage,
           productPrice: payload.productPrice,
         });
@@ -227,7 +229,7 @@ export const action = async ({ request }) => {
       }
     } else {
       if (customerId) {
-        const removed = await deleteWishlistItem(shop, customerId, productId);
+        const removed = await deleteWishlistItem(shop, customerId, productId, variantId);
         if (removed) {
           await recordAnalytics(shop, { removes: 1 }).catch((e) =>
             console.error("Analytics update failed on remove", e));
