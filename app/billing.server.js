@@ -229,20 +229,27 @@ export const recordPlanPurchaseHistory = async ({
   billingPeriodEnd = null,
   occurredAt = new Date(),
 }) => {
-  await prisma.planPurchaseHistory.upsert({
-    where: { eventKey },
-    create: {
-      shop,
-      planId,
-      purchaseType,
-      amount,
-      eventKey,
-      subscriptionId,
-      billingPeriodEnd,
-      occurredAt,
-    },
-    update: {},
-  });
+  try {
+    await prisma.planPurchaseHistory.upsert({
+      where: { eventKey },
+      create: {
+        shop,
+        planId,
+        purchaseType,
+        amount,
+        eventKey,
+        subscriptionId,
+        billingPeriodEnd,
+        occurredAt,
+      },
+      update: {},
+    });
+  } catch (err) {
+    // P2002 = unique constraint violation — a concurrent request already inserted
+    // this event. Treat as success: the record exists, nothing to do.
+    if (err?.code === "P2002") return;
+    throw err;
+  }
 };
 
 export const getPlanPurchaseHistory = (shop, take = 50) =>
@@ -260,18 +267,12 @@ const recordSubscriptionHistory = async (shop, subscription, occurredAt = new Da
     ? new Date(subscription.currentPeriodEnd)
     : null;
   const manualEventKey = `subscription-start:${subscription.id}`;
-  const [manualEvent, lastPeriodEvent] = await Promise.all([
-    prisma.planPurchaseHistory.findUnique({ where: { eventKey: manualEventKey } }),
-    prisma.planPurchaseHistory.findFirst({
-      where: {
-        shop,
-        subscriptionId: subscription.id,
-        purchaseType: { in: ["manual_purchase", "auto_renewal"] },
-        billingPeriodEnd: { not: null },
-      },
-      orderBy: { billingPeriodEnd: "desc" },
-    }),
-  ]);
+
+  // Check & insert in a single try/catch — the P2002 guard in
+  // recordPlanPurchaseHistory handles concurrent duplicate inserts.
+  const manualEvent = await prisma.planPurchaseHistory.findUnique({
+    where: { eventKey: manualEventKey },
+  });
 
   if (!manualEvent) {
     await recordPlanPurchaseHistory({
@@ -286,6 +287,17 @@ const recordSubscriptionHistory = async (shop, subscription, occurredAt = new Da
     });
     return;
   }
+
+  // Already have the initial event — check for a new billing period
+  const lastPeriodEvent = await prisma.planPurchaseHistory.findFirst({
+    where: {
+      shop,
+      subscriptionId: subscription.id,
+      purchaseType: { in: ["manual_purchase", "auto_renewal"] },
+      billingPeriodEnd: { not: null },
+    },
+    orderBy: { billingPeriodEnd: "desc" },
+  });
 
   if (
     billingPeriodEnd &&
