@@ -200,7 +200,7 @@ export const action = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   const shop = session.shop;
   const payload = await readPayload(request);
-  const { resource, operation, customerId, productId, productHandle, productTitle, productImage, productPrice } = payload;
+  const { resource, operation, customerId, productId, variantId, variantTitle, productHandle, productTitle, productImage, productPrice } = payload;
 
   if (resource !== "item") {
     return json({ error: "resource must be 'item'." }, { status: 400 });
@@ -238,6 +238,8 @@ export const action = async ({ request }) => {
       }
       const result = await upsertWishlistItem(shop, customerId, {
         productId: String(productId),
+        variantId: String(variantId || ""),
+        variantTitle: variantTitle || null,
         productHandle: String(productHandle || productId),
         productTitle: String(productTitle || productHandle || productId),
         productImage: productImage || null,
@@ -250,7 +252,7 @@ export const action = async ({ request }) => {
 
     // ── remove ─────────────────────────────────────────────────────────────
     if (operation === "remove") {
-      const removed = await deleteWishlistItem(shop, customerId, String(productId));
+      const removed = await deleteWishlistItem(shop, customerId, String(productId), String(variantId || ""));
       if (removed) await recordAnalytics(shop, { removes: 1 }).catch(() => {});
       const items = await listCustomerWishlistItems(shop, customerId);
       return json({ operation: "remove", removed, items });
