@@ -1,90 +1,9 @@
-{{ 'wishlist.css' | asset_url | stylesheet_tag }}
-
-<script>
-  (() => {
-    const endpoint = '/apps/silverclouding-wishlist';
-
-    const applyToastSettings = (settings) => {
-      if (!settings) return;
-      const root = document.documentElement;
-
-      if (settings.toastBg)    root.style.setProperty('--silv-toast-bg',    settings.toastBg);
-      if (settings.toastColor) root.style.setProperty('--silv-toast-color', settings.toastColor);
-
-      const pos = settings.toastPosition || 'top-left';
-      root.style.setProperty('--silv-toast-top',    pos.startsWith('top')    ? '1rem' : 'auto');
-      root.style.setProperty('--silv-toast-bottom', pos.startsWith('bottom') ? '1rem' : 'auto');
-      root.style.setProperty('--silv-toast-left',   pos.endsWith('left')     ? '1rem' : 'auto');
-      root.style.setProperty('--silv-toast-right',  pos.endsWith('right')    ? '1rem' : 'auto');
-
-      const slideY = pos.startsWith('top') ? '-0.5rem' : '0.5rem';
-      root.style.setProperty('--silv-toast-slide', slideY);
-    };
-
-    const initWishlistToast = () => {
-      if (window.silvercloudingWishlistToastReady) return;
-      window.silvercloudingWishlistToastReady = true;
-
-      const showToast = (detail = {}) => {
-        const { message, image, title } = detail;
-        if (!message) return;
-
-        let toast = document.querySelector('[data-silv-wishlist-toast]');
-        if (!toast) {
-          toast = document.createElement('div');
-          toast.dataset.silvWishlistToast = '';
-          toast.className = 'silv-wishlist__toast';
-          toast.setAttribute('role', 'status');
-          toast.setAttribute('aria-live', 'polite');
-          document.body.append(toast);
-        }
-
-        if (image || title) {
-          toast.innerHTML = `
-            <div class="silv-wishlist__toast-inner">
-              ${image ? `<img class="silv-wishlist__toast-img" src="${image}" alt="" aria-hidden="true">` : ''}
-              <div class="silv-wishlist__toast-body">
-                <span class="silv-wishlist__toast-label">${message}</span>
-                ${title ? `<span class="silv-wishlist__toast-title">${title}</span>` : ''}
-              </div>
-            </div>
-          `;
-        } else {
-          toast.textContent = message;
-        }
-
-        toast.classList.add('is-visible');
-        clearTimeout(window.silvercloudingWishlistToastTimer);
-        window.silvercloudingWishlistToastTimer = setTimeout(() => {
-          toast.classList.remove('is-visible');
-        }, 2200);
-      };
-
-      window.silvercloudingWishlistToast = showToast;
-      window.addEventListener('silverclouding:wishlist-toast', (event) => {
-        if (event.detail?.message) {
-          showToast(event.detail);
-        }
-      });
-    };
-
-    initWishlistToast();
-
-    fetch(`${endpoint}?api=settings`, { credentials: 'same-origin' })
-      .then((r) => r.ok ? r.json() : {})
-      .then((data) => applyToastSettings(data.settings))
-      .catch(() => {})
-      .finally(() => {
-        window.silvercloudingEmbedEnabled = true;
-        document.dispatchEvent(new CustomEvent('silverclouding:embed-ready'));
-      });
-  })();
-</script>
-
 {% schema %}
 {
   "name": "Wishlist Settings",
   "target": "body",
+  "stylesheet": "wishlist.css",
+  "javascript": "wishlist.js",
   "settings": []
 }
 {% endschema %}
