@@ -56,7 +56,7 @@ CREATE TABLE "WishlistSettings" (
     "buttonLabel" TEXT NOT NULL DEFAULT 'Remove',
     "showAddToCart" BOOLEAN NOT NULL DEFAULT false,
     "addToCartLabel" TEXT NOT NULL DEFAULT 'Add to cart',
-    "cardClass" TEXT NOT NULL DEFAULT 'sai-wishlist-page__item',
+    "cardClass" TEXT NOT NULL DEFAULT 'silv-wishlist-page__item',
     "customCss" TEXT NOT NULL DEFAULT '',
     "toastBg" TEXT NOT NULL DEFAULT '#1a1a1a',
     "toastColor" TEXT NOT NULL DEFAULT '#ffffff',

@@ -566,28 +566,28 @@ document.querySelectorAll('[data-wishlist-count]').forEach(initWishlistCounter);
     const columns       = settings.columns      || 4;
 
     if (items.length === 0) {
-      container.innerHTML = \`<p class="sai-wishlist-page__empty">\${esc(emptyMessage)}</p>\`;
+      container.innerHTML = \`<p class="silv-wishlist-page__empty">\${esc(emptyMessage)}</p>\`;
       return;
     }
 
     const grid = document.createElement('ul');
-    grid.className = 'sai-wishlist-page__items';
-    grid.style.setProperty('--sai-wishlist-columns', columns);
+    grid.className = 'silv-wishlist-page__items';
+    grid.style.setProperty('--silv-wishlist-columns', columns);
 
     items.forEach((item) => {
       const li = document.createElement('li');
-      li.className = 'sai-wishlist-page__item';
+      li.className = 'silv-wishlist-page__item';
       li.innerHTML = \`
         <a href="/products/\${encodeURIComponent(item.handle)}">
           <img src="\${esc(item.image)}" alt="\${esc(item.title)}" loading="lazy">
         </a>
         <div>
-          <a class="sai-wishlist-page__title" href="/products/\${encodeURIComponent(item.handle)}">\${esc(item.title)}</a>
-          \${showPrices && item.price ? \`<div class="sai-wishlist-page__price">\${esc(item.price)}</div>\` : ''}
-          \${showRemove ? \`<button type="button" class="sai-wishlist-page__remove">\${esc(buttonLabel)}</button>\` : ''}
+          <a class="silv-wishlist-page__title" href="/products/\${encodeURIComponent(item.handle)}">\${esc(item.title)}</a>
+          \${showPrices && item.price ? \`<div class="silv-wishlist-page__price">\${esc(item.price)}</div>\` : ''}
+          \${showRemove ? \`<button type="button" class="silv-wishlist-page__remove">\${esc(buttonLabel)}</button>\` : ''}
         </div>
       \`;
-      li.querySelector('.sai-wishlist-page__remove')?.addEventListener('click', async () => {
+      li.querySelector('.silv-wishlist-page__remove')?.addEventListener('click', async () => {
         await SilvercloudingWishlist.remove({ productId: item.id, productHandle: item.handle, productTitle: item.title });
       });
       grid.append(li);
@@ -596,9 +596,9 @@ document.querySelectorAll('[data-wishlist-count]').forEach(initWishlistCounter);
     const header = document.createElement('div');
     header.innerHTML = \`
       <h2>\${esc(heading)}</h2>
-      <button type="button" class="sai-wishlist-page__clear button">Clear all</button>
+      <button type="button" class="silv-wishlist-page__clear button">Clear all</button>
     \`;
-    header.querySelector('.sai-wishlist-page__clear button').addEventListener('click', () => {
+    header.querySelector('.silv-wishlist-page__clear button').addEventListener('click', () => {
       SilvercloudingWishlist.clear();
     });
 
@@ -649,12 +649,12 @@ if (wishlistPage) initWishlistPage(wishlistPage);`}</code>
     const handle = handleFromLink(link);
     if (!handle) return;
     const card = link.closest('li, article, .card-wrapper, .product-card-wrapper, .card, .product-card, .grid__item, [class*="product-card"], [class*="product-item"], [class*="card--product"]');
-    if (!card || card.querySelector('[data-sai-col-btn]')) return;
+    if (!card || card.querySelector('[data-silv-col-btn]')) return;
 
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'sai-wishlist sai-wishlist--collection';
-    btn.dataset.saiColBtn = '';
+    btn.className = 'silv-wishlist silv-wishlist--collection';
+    btn.dataset.silvColBtn = '';
     btn.setAttribute('aria-label', 'Add to wishlist');
     card.style.position = card.style.position || 'relative';
     card.append(btn);

@@ -8,17 +8,17 @@
       if (!settings) return;
       const root = document.documentElement;
 
-      if (settings.toastBg)    root.style.setProperty('--sai-toast-bg',    settings.toastBg);
-      if (settings.toastColor) root.style.setProperty('--sai-toast-color', settings.toastColor);
+      if (settings.toastBg)    root.style.setProperty('--silv-toast-bg',    settings.toastBg);
+      if (settings.toastColor) root.style.setProperty('--silv-toast-color', settings.toastColor);
 
       const pos = settings.toastPosition || 'top-left';
-      root.style.setProperty('--sai-toast-top',    pos.startsWith('top')    ? '1rem' : 'auto');
-      root.style.setProperty('--sai-toast-bottom', pos.startsWith('bottom') ? '1rem' : 'auto');
-      root.style.setProperty('--sai-toast-left',   pos.endsWith('left')     ? '1rem' : 'auto');
-      root.style.setProperty('--sai-toast-right',  pos.endsWith('right')    ? '1rem' : 'auto');
+      root.style.setProperty('--silv-toast-top',    pos.startsWith('top')    ? '1rem' : 'auto');
+      root.style.setProperty('--silv-toast-bottom', pos.startsWith('bottom') ? '1rem' : 'auto');
+      root.style.setProperty('--silv-toast-left',   pos.endsWith('left')     ? '1rem' : 'auto');
+      root.style.setProperty('--silv-toast-right',  pos.endsWith('right')    ? '1rem' : 'auto');
 
       const slideY = pos.startsWith('top') ? '-0.5rem' : '0.5rem';
-      root.style.setProperty('--sai-toast-slide', slideY);
+      root.style.setProperty('--silv-toast-slide', slideY);
     };
 
     const initWishlistToast = () => {
@@ -29,11 +29,11 @@
         const { message, image, title } = detail;
         if (!message) return;
 
-        let toast = document.querySelector('[data-sai-wishlist-toast]');
+        let toast = document.querySelector('[data-silv-wishlist-toast]');
         if (!toast) {
           toast = document.createElement('div');
-          toast.dataset.saiWishlistToast = '';
-          toast.className = 'sai-wishlist__toast';
+          toast.dataset.silvWishlistToast = '';
+          toast.className = 'silv-wishlist__toast';
           toast.setAttribute('role', 'status');
           toast.setAttribute('aria-live', 'polite');
           document.body.append(toast);
@@ -41,11 +41,11 @@
 
         if (image || title) {
           toast.innerHTML = `
-            <div class="sai-wishlist__toast-inner">
-              ${image ? `<img class="sai-wishlist__toast-img" src="${image}" alt="" aria-hidden="true">` : ''}
-              <div class="sai-wishlist__toast-body">
-                <span class="sai-wishlist__toast-label">${message}</span>
-                ${title ? `<span class="sai-wishlist__toast-title">${title}</span>` : ''}
+            <div class="silv-wishlist__toast-inner">
+              ${image ? `<img class="silv-wishlist__toast-img" src="${image}" alt="" aria-hidden="true">` : ''}
+              <div class="silv-wishlist__toast-body">
+                <span class="silv-wishlist__toast-label">${message}</span>
+                ${title ? `<span class="silv-wishlist__toast-title">${title}</span>` : ''}
               </div>
             </div>
           `;

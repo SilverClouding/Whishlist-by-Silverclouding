@@ -4,20 +4,20 @@ Injects wishlist toggle buttons into collection product cards.
 
 {{ 'wishlist.css' | asset_url | stylesheet_tag }}
 
-<template id="sai-collection-btn-tpl">
+<template id="silv-collection-btn-tpl">
   <button
     type="button"
-    class="sai-wishlist sai-wishlist--collection"
-    data-sai-collection-wishlist
+    class="silv-wishlist silv-wishlist--collection"
+    data-silv-collection-wishlist
     aria-label="{{ 'wishlist.add_to_wishlist' | t }}"
   >
-    <span class="sai-wishlist__icon sai-wishlist__icon--default" aria-hidden="true">
+    <span class="silv-wishlist__icon silv-wishlist__icon--default" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
           stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </span>
-    <span class="sai-wishlist__icon sai-wishlist__icon--active" aria-hidden="true">
+    <span class="silv-wishlist__icon silv-wishlist__icon--active" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
       </svg>
@@ -33,7 +33,7 @@ Injects wishlist toggle buttons into collection product cards.
     const storageKey       = 'silverclouding_wishlist';
     const visitorStorageKey = 'silverclouding_wishlist_visitor';
     const endpoint         = '/apps/silverclouding-wishlist';
-    const tpl              = document.getElementById('sai-collection-btn-tpl');
+    const tpl              = document.getElementById('silv-collection-btn-tpl');
     if (!tpl) return;
 
     let customerAuthenticated = false;
@@ -163,13 +163,13 @@ Injects wishlist toggle buttons into collection product cards.
         '[class*="product-card"]', '[class*="product-item"]', '[class*="card--product"]'
       ].join(','));
       // Guard: skip if no card, or already attached/pending
-      if (!card || card.dataset.saiWishlistAttaching || card.querySelector('[data-sai-collection-wishlist]')) return;
+      if (!card || card.dataset.silvWishlistAttaching || card.querySelector('[data-silv-collection-wishlist]')) return;
 
       // Mark as pending immediately — prevents race condition on async fetch
-      card.dataset.saiWishlistAttaching = '1';
+      card.dataset.silvWishlistAttaching = '1';
 
-      const btn = tpl.content.cloneNode(true).querySelector('[data-sai-collection-wishlist]');
-      if (!btn) { delete card.dataset.saiWishlistAttaching; return; }
+      const btn = tpl.content.cloneNode(true).querySelector('[data-silv-collection-wishlist]');
+      if (!btn) { delete card.dataset.silvWishlistAttaching; return; }
 
       card.style.position = card.style.position || 'relative';
       card.append(btn);
@@ -195,7 +195,7 @@ Injects wishlist toggle buttons into collection product cards.
         });
       } catch {
         btn.remove();
-        delete card.dataset.saiWishlistAttaching;
+        delete card.dataset.silvWishlistAttaching;
       }
     };
 
@@ -216,7 +216,7 @@ Injects wishlist toggle buttons into collection product cards.
 
     // Re-render all buttons when wishlist changes
     window.addEventListener('silverclouding:wishlist-updated', () => {
-      document.querySelectorAll('[data-sai-collection-wishlist]').forEach((btn) => {
+      document.querySelectorAll('[data-silv-collection-wishlist]').forEach((btn) => {
         const card = btn.parentElement;
         const link = card && card.querySelector('a[href*="/products/"]');
         if (!link) return;

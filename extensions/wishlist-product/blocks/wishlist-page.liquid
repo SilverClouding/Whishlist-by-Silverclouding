@@ -16,39 +16,39 @@
   endif
 %}
 <style>
-  .sai-wishlist-page__item img{
+  .silv-wishlist-page__item img{
     aspect-ratio: {{ratio}};
   }
 
-  .sai-wishlist-page__header {
+  .silv-wishlist-page__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
 }
 
-.sai-wishlist-page__header .wislist-page-title {
+.silv-wishlist-page__header .wislist-page-title {
     margin: 0;
     padding: 0;
 }
-.sai-wishlist-page{padding-block: var(--padding-block-start) var(--padding-block-end);}
+.silv-wishlist-page{padding-block: var(--padding-block-start) var(--padding-block-end);}
  
 </style>
 
-<section class="sai-wishlist-page" data-sai-wishlist-page hidden style="--padding-block-start: {{ block.settings.padding-block-start }}px; --padding-block-end: {{ block.settings.padding-block-end }}px;">
-  <div class="sai-wishlist-page__header">
+<section class="silv-wishlist-page" data-silv-wishlist-page hidden style="--padding-block-start: {{ block.settings.padding-block-start }}px; --padding-block-end: {{ block.settings.padding-block-end }}px;">
+  <div class="silv-wishlist-page__header">
     <h2 class="wislist-page-title h2">{{ block.settings.heading }}</h2>
-    <div class="sai-wishlist-page__actions">
-      <button type="button" class="sai-wishlist-page__share button" data-sai-wishlist-share hidden>
+    <div class="silv-wishlist-page__actions">
+      <button type="button" class="silv-wishlist-page__share button" data-silv-wishlist-share hidden>
         Share wishlist
       </button>
-      <button type="button" class="sai-wishlist-page__clear button" data-sai-wishlist-clear hidden>
+      <button type="button" class="silv-wishlist-page__clear button" data-silv-wishlist-clear hidden>
         Clear all
       </button>
     </div>
    
   </div>
- <p data-sai-wishlist-empty hidden>{{ block.settings.empty_message }}</p>
+ <p data-silv-wishlist-empty hidden>{{ block.settings.empty_message }}</p>
   <div class=" grid main-collection-grid spacing-style" style="
     --grid--margin--mobile: 0 var(--margin-lg);
     --grid-column--desktop: var(--centered);
@@ -63,7 +63,7 @@
       --product-grid-gap-desktop: 16px 16px;
       container-name: product-grid;
     ">
-      <div class="sai-wishlist-page__items product-grid--grid product-grid " data-sai-wishlist-items></div>
+      <div class="silv-wishlist-page__items product-grid--grid product-grid " data-silv-wishlist-items></div>
     </div>
 
   </div>
@@ -92,7 +92,7 @@
       buttonLabel: '{{ block.settings.button_label | escape }}',
       showAddToCart: {{ block.settings.show_add_to_cart | default: false | json }},
       addToCartLabel: '{{ block.settings.add_to_cart_label | default: "Add to cart" | escape }}',
-      cardClass: 'sai-wishlist-page__item',
+      cardClass: 'silv-wishlist-page__item',
       customCss: ''
     };
     const script = _script;
@@ -100,10 +100,10 @@
     if (!page) return;
     page.hidden = false; // reveal — embed is confirmed enabled
 
-    const itemsContainer = page.querySelector('[data-sai-wishlist-items]');
-    const emptyMessage = page.querySelector('[data-sai-wishlist-empty]');
-    const clearButton = page.querySelector('[data-sai-wishlist-clear]');
-    const shareButton = page.querySelector('[data-sai-wishlist-share]');
+    const itemsContainer = page.querySelector('[data-silv-wishlist-items]');
+    const emptyMessage = page.querySelector('[data-silv-wishlist-empty]');
+    const clearButton = page.querySelector('[data-silv-wishlist-clear]');
+    const shareButton = page.querySelector('[data-silv-wishlist-share]');
     if (!itemsContainer || !emptyMessage || !clearButton) return;
 
     const getItems = () => {
@@ -161,10 +161,10 @@
     const applySettings = (data) => {
       if (!data?.settings) return;
       settings = { ...settings, ...data.settings };
-      let customStyle = document.querySelector('[data-sai-wishlist-custom-css]');
+      let customStyle = document.querySelector('[data-silv-wishlist-custom-css]');
       if (!customStyle) {
         customStyle = document.createElement('style');
-        customStyle.dataset.saiWishlistCustomCss = '';
+        customStyle.dataset.silvWishlistCustomCss = '';
         document.head.append(customStyle);
       }
       customStyle.textContent = settings.customCss || '';
@@ -230,7 +230,7 @@
       return div.innerHTML;
     };
 
-    const customTpl = document.querySelector('[data-sai-wishlist-page]');
+    const customTpl = document.querySelector('[data-silv-wishlist-page]');
 
     const _productDataCache = new Map();
     const fetchProductData = async (handle, savedVariantId = '') => {
@@ -257,14 +257,14 @@
 
     const buildActions = (item, productData, existingRemoveButton = null) => {
       const actions = document.createElement('div');
-      actions.className = 'sai-wishlist-page__card-actions';
+      actions.className = 'silv-wishlist-page__card-actions';
 
       if (settings.showAddToCart && productData?.variantId) {
         const form = document.createElement('form');
-        form.className = 'sai-wishlist-page__atc-form';
+        form.className = 'silv-wishlist-page__atc-form';
         form.action = '/cart/add';
         form.method = 'post';
-        form.innerHTML = `<input type="hidden" name="id"><input type="hidden" name="quantity" value="1"><button type="submit" name="add" class="sai-wishlist-page__add-to-cart button">${esc(settings.addToCartLabel)}</button>`;
+        form.innerHTML = `<input type="hidden" name="id"><input type="hidden" name="quantity" value="1"><button type="submit" name="add" class="silv-wishlist-page__add-to-cart button">${esc(settings.addToCartLabel)}</button>`;
         form.querySelector('[name="id"]').value = productData.variantId;
         const addButton = form.querySelector('button');
         addButton.disabled = !productData.variantAvailable;
@@ -275,7 +275,7 @@
       if (settings.showRemove) {
         const removeButton = existingRemoveButton || document.createElement('button');
         removeButton.type = 'button';
-        removeButton.classList.add('sai-wishlist-page__remove');
+        removeButton.classList.add('silv-wishlist-page__remove');
         if (!removeButton.textContent.trim()) removeButton.textContent = settings.buttonLabel;
         removeButton.addEventListener('click', () => handleRemove(item, removeButton));
         actions.append(removeButton);
@@ -307,7 +307,7 @@
     };
 
     itemsContainer.addEventListener('submit', async (event) => {
-      const form = event.target.closest('.sai-wishlist-page__atc-form');
+      const form = event.target.closest('.silv-wishlist-page__atc-form');
       if (!form) return;
       event.preventDefault();
 
@@ -353,11 +353,11 @@
         const root = document.createElement('div');
         root.appendChild(clone);
 
-        root.querySelectorAll('[data-sai-item-link]').forEach((el) => {
+        root.querySelectorAll('[data-silv-item-link]').forEach((el) => {
           el.href = `/products/${encodeURIComponent(item.handle)}`;
         });
 
-        const img = root.querySelector('[data-sai-item-image]');
+        const img = root.querySelector('[data-silv-item-image]');
         if (img) {
           img.src = item.image || '';
           img.alt = item.title || '';
@@ -375,16 +375,16 @@
           }, { once: true });
         }
 
-        const title = root.querySelector('[data-sai-item-title]');
+        const title = root.querySelector('[data-silv-item-title]');
         if (title) title.textContent = item.title || '';
 
-        const variantTitle = root.querySelector('[data-sai-item-variant-title]');
+        const variantTitle = root.querySelector('[data-silv-item-variant-title]');
         if (variantTitle) {
           variantTitle.textContent = productData?.variantTitle && productData.variantTitle !== 'Default Title' ? productData.variantTitle : '';
           variantTitle.hidden = !variantTitle.textContent;
         }
 
-        const price = root.querySelector('[data-sai-item-price]');
+        const price = root.querySelector('[data-silv-item-price]');
         if (price) {
           if (settings.showPrices && item.price) {
             price.textContent = item.price;
@@ -393,46 +393,46 @@
           }
         }
 
-        const productIdEl = root.querySelector('[data-sai-item-product-id]');
+        const productIdEl = root.querySelector('[data-silv-item-product-id]');
         if (productIdEl && productData?.productId) {
           productIdEl.dataset.productId = productData.productId;
         }
 
-        const variantIdEl = root.querySelector('[data-sai-item-variant-id]');
+        const variantIdEl = root.querySelector('[data-silv-item-variant-id]');
         if (variantIdEl && productData?.variantId) {
           variantIdEl.dataset.variantId = productData.variantId;
           variantIdEl.value = productData.variantId; // also set value if it's an <input>
         }
 
-        const removeBtn = root.querySelector('[data-sai-item-remove]');
+        const removeBtn = root.querySelector('[data-silv-item-remove]');
         if (removeBtn) {
           if (!removeBtn.textContent.trim()) removeBtn.textContent = settings.buttonLabel;
         }
 
-        const actionHost = root.querySelector('[data-sai-item-actions]') || root.querySelector('.sai-wishlist-page__info') || root;
+        const actionHost = root.querySelector('[data-silv-item-actions]') || root.querySelector('.silv-wishlist-page__info') || root;
         actionHost.append(buildActions(item, productData, removeBtn));
 
         const fragment = document.createDocumentFragment();
         while (root.firstChild) fragment.appendChild(root.firstChild);
         const wrapper = document.createElement('div');
-        wrapper.className = `sai-wishlist-page__item product-grid__item ${settings.cardClass || ''}`.trim();
+        wrapper.className = `silv-wishlist-page__item product-grid__item ${settings.cardClass || ''}`.trim();
         wrapper.appendChild(fragment);
         return wrapper;
 
       } else {
         const card = document.createElement('div');
-        card.className = `sai-wishlist-page__item product-grid__item ${settings.cardClass || ''}`.trim();
+        card.className = `silv-wishlist-page__item product-grid__item ${settings.cardClass || ''}`.trim();
         card.innerHTML = `
           <a href="/products/${encodeURIComponent(item.handle)}">
-            <img data-sai-wishlist-image alt="" loading="lazy">
+            <img data-silv-wishlist-image alt="" loading="lazy">
           </a>
-          <div class="sai-wishlist-page__info">
-            <a class="sai-wishlist-page__title" href="/products/${encodeURIComponent(item.handle)}">${esc(item.title) || 'Product'}</a>
-            ${productData?.variantTitle && productData.variantTitle !== 'Default Title' ? `<div class="sai-wishlist-page__variant">${esc(productData.variantTitle)}</div>` : ''}
-            ${settings.showPrices && item.price ? `<div class="sai-wishlist-page__price">${esc(item.price)}</div>` : ''}
+          <div class="silv-wishlist-page__info">
+            <a class="silv-wishlist-page__title" href="/products/${encodeURIComponent(item.handle)}">${esc(item.title) || 'Product'}</a>
+            ${productData?.variantTitle && productData.variantTitle !== 'Default Title' ? `<div class="silv-wishlist-page__variant">${esc(productData.variantTitle)}</div>` : ''}
+            ${settings.showPrices && item.price ? `<div class="silv-wishlist-page__price">${esc(item.price)}</div>` : ''}
           </div>
         `;
-        const image = card.querySelector('[data-sai-wishlist-image]');
+        const image = card.querySelector('[data-silv-wishlist-image]');
         image.alt = item.title || 'Product';
         image.src = item.image || `/products/${encodeURIComponent(item.handle)}.js`;
         image.addEventListener('error', async () => {
@@ -448,7 +448,7 @@
             console.error('Wishlist image fallback failed', error);
           }
         }, { once: true });
-        card.querySelector('.sai-wishlist-page__info').append(buildActions(item, productData));
+        card.querySelector('.silv-wishlist-page__info').append(buildActions(item, productData));
         return card;
       }
     };
@@ -499,7 +499,7 @@
       const items = getItems();
       page.querySelector('h2').textContent = settings.heading;
       emptyMessage.textContent = settings.emptyMessage;
-      itemsContainer.style.setProperty('--sai-wishlist-columns', settings.columns);
+      itemsContainer.style.setProperty('--silv-wishlist-columns', settings.columns);
       itemsContainer.replaceChildren();
       emptyMessage.hidden = items.length > 0;
       clearButton.hidden = items.length === 0;

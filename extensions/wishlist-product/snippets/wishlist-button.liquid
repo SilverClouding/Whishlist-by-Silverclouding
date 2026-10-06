@@ -7,11 +7,11 @@ Renders a wishlist toggle for a product.
 
 {% assign wp = product %}
 
-<div data-sai-wishlist>
+<div data-silv-wishlist>
   <button
     type="button"
-    class="sai-wishlist"
-    data-sai-wishlist-button
+    class="silv-wishlist"
+    data-silv-wishlist-button
     data-product-id="{{ wp.id }}"
     data-product-handle="{{ wp.handle }}"
     data-product-title="{{ wp.title | escape }}"
@@ -20,19 +20,19 @@ Renders a wishlist toggle for a product.
     aria-label="{{ 'wishlist.add_to_wishlist' | t }}"
   >
     <!-- Outline heart — shown when NOT saved -->
-    <span class="sai-wishlist__icon sai-wishlist__icon--default" aria-hidden="true">
+    <span class="silv-wishlist__icon silv-wishlist__icon--default" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
           stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </span>
     <!-- Filled heart — shown when saved (.is-active on button) via CSS -->
-    <span class="sai-wishlist__icon sai-wishlist__icon--active" aria-hidden="true">
+    <span class="silv-wishlist__icon silv-wishlist__icon--active" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
       </svg>
     </span>
-    <span class="sai-wishlist__label">{{ 'wishlist.add_to_wishlist' | t }}</span>
+    <span class="silv-wishlist__label">{{ 'wishlist.add_to_wishlist' | t }}</span>
   </button>
 </div>
 
@@ -43,7 +43,7 @@ Renders a wishlist toggle for a product.
     const syncEndpoint = '/apps/silverclouding-wishlist';
     const script = document.currentScript;
     const block = script && script.previousElementSibling;
-    const button = block && block.querySelector('[data-sai-wishlist-button]');
+    const button = block && block.querySelector('[data-silv-wishlist-button]');
     if (!button) return;
 
     // ── State ──────────────────────────────────────────────────────────────
@@ -72,7 +72,7 @@ Renders a wishlist toggle for a product.
     const updateView = (isSaved) => {
       button.classList.toggle('is-active', isSaved);
       // CSS handles icon via .is-active — just update the label
-      const label = button.querySelector('.sai-wishlist__label');
+      const label = button.querySelector('.silv-wishlist__label');
       const savedLabel = {{ 'wishlist.saved' | t | json }};
       const addLabel = {{ 'wishlist.add_to_wishlist' | t | json }};
       if (label) label.textContent = isSaved ? savedLabel : addLabel;

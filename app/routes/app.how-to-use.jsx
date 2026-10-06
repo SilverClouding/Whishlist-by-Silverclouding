@@ -57,8 +57,8 @@ export default function HowToUsePage() {
           <s-banner tone="info">
             <code>{`{{ 'wishlist.css' | asset_url | stylesheet_tag }}
 {% assign wp = product %}
-<div data-sai-wishlist>
-  <button type="button" class="sai-wishlist" data-sai-wishlist-button
+<div data-silv-wishlist>
+  <button type="button" class="silv-wishlist" data-silv-wishlist-button
     data-product-id="{{ wp.id }}"
     data-product-handle="{{ wp.handle }}"
     data-product-title="{{ wp.title | escape }}"
@@ -66,19 +66,19 @@ export default function HowToUsePage() {
     data-product-price="{{ wp.price | money | escape }}"
     aria-label="Add to wishlist">
     <!-- Outline heart — shown when NOT saved -->
-    <span class="sai-wishlist__icon sai-wishlist__icon--default" aria-hidden="true">
+    <span class="silv-wishlist__icon silv-wishlist__icon--default" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
           stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </span>
     <!-- Filled heart — shown when saved (.is-active) via CSS -->
-    <span class="sai-wishlist__icon sai-wishlist__icon--active" aria-hidden="true" style="display:none">
+    <span class="silv-wishlist__icon silv-wishlist__icon--active" aria-hidden="true" style="display:none">
       <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
       </svg>
     </span>
-    <span class="sai-wishlist__label">Add to wishlist</span>
+    <span class="silv-wishlist__label">Add to wishlist</span>
   </button>
 </div>
 <script>
@@ -88,7 +88,7 @@ export default function HowToUsePage() {
     const syncEndpoint = '/apps/silverclouding-wishlist';
     const script = document.currentScript;
     const block = script && script.previousElementSibling;
-    const button = block && block.querySelector('[data-sai-wishlist-button]');
+    const button = block && block.querySelector('[data-silv-wishlist-button]');
     if (!button) return;
 
     const productId     = button.dataset.productId;
@@ -101,11 +101,11 @@ export default function HowToUsePage() {
 
     // Toast
     const announce = (message) => {
-      let toast = document.querySelector('[data-sai-wishlist-toast]');
+      let toast = document.querySelector('[data-silv-wishlist-toast]');
       if (!toast) {
         toast = document.createElement('div');
-        toast.dataset.saiWishlistToast = '';
-        toast.className = 'sai-wishlist__toast';
+        toast.dataset.silvWishlistToast = '';
+        toast.className = 'silv-wishlist__toast';
         toast.setAttribute('role', 'status');
         document.body.append(toast);
       }
@@ -124,7 +124,7 @@ export default function HowToUsePage() {
       button.classList.toggle('is-active', saved);
       // Icons switch via CSS .is-active — just update aria-label and label text
       button.setAttribute('aria-label', saved ? 'Saved' : 'Add to wishlist');
-      const label = button.querySelector('.sai-wishlist__label');
+      const label = button.querySelector('.silv-wishlist__label');
       if (label) label.textContent = saved ? 'Saved' : 'Add to wishlist';
     };
     const refresh = () => updateView(getWishlist().some(i => String(i.id) === String(productId)));
@@ -221,16 +221,16 @@ export default function HowToUsePage() {
             <code>{`{{ 'wishlist.css' | asset_url | stylesheet_tag }}
 
 <!-- Button template: JS clones this onto every product card -->
-<template id="sai-collection-btn-tpl">
-  <button type="button" class="sai-wishlist sai-wishlist--collection"
-    data-sai-collection-wishlist aria-label="Add to wishlist">
-    <span class="sai-wishlist__icon sai-wishlist__icon--default" aria-hidden="true">
+<template id="silv-collection-btn-tpl">
+  <button type="button" class="silv-wishlist silv-wishlist--collection"
+    data-silv-collection-wishlist aria-label="Add to wishlist">
+    <span class="silv-wishlist__icon silv-wishlist__icon--default" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
           stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </span>
-    <span class="sai-wishlist__icon sai-wishlist__icon--active" aria-hidden="true" style="display:none">
+    <span class="silv-wishlist__icon silv-wishlist__icon--active" aria-hidden="true" style="display:none">
       <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
       </svg>
@@ -246,7 +246,7 @@ export default function HowToUsePage() {
     const storageKey = 'silverclouding_wishlist';
     const visitorStorageKey = 'silverclouding_wishlist_visitor';
     const endpoint = '/apps/silverclouding-wishlist';
-    const tpl = document.getElementById('sai-collection-btn-tpl');
+    const tpl = document.getElementById('silv-collection-btn-tpl');
     if (!tpl) return;
 
     let customerAuthenticated = false;
@@ -257,8 +257,8 @@ export default function HowToUsePage() {
 
     // Toast
     const announce = (message) => {
-      let toast = document.querySelector('[data-sai-wishlist-toast]');
-      if (!toast) { toast=document.createElement('div'); toast.dataset.saiWishlistToast=''; toast.className='sai-wishlist__toast'; toast.setAttribute('role','status'); document.body.append(toast); }
+      let toast = document.querySelector('[data-silv-wishlist-toast]');
+      if (!toast) { toast=document.createElement('div'); toast.dataset.silvWishlistToast=''; toast.className='silv-wishlist__toast'; toast.setAttribute('role','status'); document.body.append(toast); }
       toast.textContent = message;
       toast.classList.add('is-visible');
       clearTimeout(window.silvercloudingWishlistToastTimer);
@@ -334,10 +334,10 @@ export default function HowToUsePage() {
     const attach = async (link) => {
       const handle = handleFromLink(link);
       const card = link.closest('li,article,.card-wrapper,.product-card-wrapper,.card,.product-card,.grid__item,[class*="product-card"],[class*="product-item"],[class*="card--product"]');
-      if (!handle||!card||card.dataset.saiWishlistAttaching||card.querySelector('[data-sai-collection-wishlist]')) return;
-      card.dataset.saiWishlistAttaching = '1';
-      const btn = tpl.content.cloneNode(true).querySelector('[data-sai-collection-wishlist]');
-      if (!btn) { delete card.dataset.saiWishlistAttaching; return; }
+      if (!handle||!card||card.dataset.silvWishlistAttaching||card.querySelector('[data-silv-collection-wishlist]')) return;
+      card.dataset.silvWishlistAttaching = '1';
+      const btn = tpl.content.cloneNode(true).querySelector('[data-silv-collection-wishlist]');
+      if (!btn) { delete card.dataset.silvWishlistAttaching; return; }
       card.style.position = card.style.position || 'relative';
       card.append(btn);
       try {
@@ -351,7 +351,7 @@ export default function HowToUsePage() {
           catch(err){console.error('Collection wishlist failed',err);}
           finally { btn.disabled=false; }
         });
-      } catch { btn.remove(); delete card.dataset.saiWishlistAttaching; }
+      } catch { btn.remove(); delete card.dataset.silvWishlistAttaching; }
     };
 
     const scan = () => [...document.querySelectorAll('a[href*="/products/"]')]
@@ -364,7 +364,7 @@ export default function HowToUsePage() {
     new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
     window.addEventListener('storage',(e)=>{ if(e.key===storageKey) scan(); });
     window.addEventListener('silverclouding:wishlist-updated',()=>{
-      document.querySelectorAll('[data-sai-collection-wishlist]').forEach((btn)=>{
+      document.querySelectorAll('[data-silv-collection-wishlist]').forEach((btn)=>{
         const link = btn.parentElement?.querySelector('a[href*="/products/"]');
         if (!link) return;
         const handle = handleFromLink(link);
@@ -397,7 +397,7 @@ export default function HowToUsePage() {
           <s-paragraph>
             By default the wishlist page uses a simple card layout. To match your theme's exact
             product card design, add a <code>{"<template>"}</code> element anywhere on your wishlist
-            page template with the attribute <code>data-sai-wishlist-page</code>.
+            page template with the attribute <code>data-silv-wishlist-page</code>.
             The app will clone it for each saved item instead of using the default card.
           </s-paragraph>
           <s-paragraph>
@@ -405,82 +405,82 @@ export default function HowToUsePage() {
           </s-paragraph>
           <s-grid gap="small-200">
             <s-stack direction="inline" gap="small-200" alignItems="center">
-              <s-badge tone="info">data-sai-item-link</s-badge>
+              <s-badge tone="info">data-silv-item-link</s-badge>
               <s-text>Sets <code>href="/products/{"{handle}"}"</code> on any <code>{"<a>"}</code></s-text>
             </s-stack>
             <s-stack direction="inline" gap="small-200" alignItems="center">
-              <s-badge tone="info">data-sai-item-image</s-badge>
+              <s-badge tone="info">data-silv-item-image</s-badge>
               <s-text>Sets <code>src</code> and <code>alt</code> on an <code>{"<img>"}</code></s-text>
             </s-stack>
             <s-stack direction="inline" gap="small-200" alignItems="center">
-              <s-badge tone="info">data-sai-item-title</s-badge>
+              <s-badge tone="info">data-silv-item-title</s-badge>
               <s-text>Sets the product title as text content</s-text>
             </s-stack>
             <s-stack direction="inline" gap="small-200" alignItems="center">
-              <s-badge tone="info">data-sai-item-price</s-badge>
+              <s-badge tone="info">data-silv-item-price</s-badge>
               <s-text>Sets the product price as text content (hidden if "Show prices" is off)</s-text>
             </s-stack>
             <s-stack direction="inline" gap="small-200" alignItems="center">
-              <s-badge tone="info">data-sai-item-remove</s-badge>
+              <s-badge tone="info">data-silv-item-remove</s-badge>
               <s-text>Wires up the remove click handler (hidden if "Show remove" is off)</s-text>
             </s-stack>
             <s-stack direction="inline" gap="small-200" alignItems="center">
-              <s-badge tone="info">data-sai-item-product-id</s-badge>
+              <s-badge tone="info">data-silv-item-product-id</s-badge>
               <s-text>Sets <code>data-product-id</code> attribute — Shopify numeric product ID. Useful for cart forms.</s-text>
             </s-stack>
             <s-stack direction="inline" gap="small-200" alignItems="center">
-              <s-badge tone="info">data-sai-item-variant-id</s-badge>
+              <s-badge tone="info">data-silv-item-variant-id</s-badge>
               <s-text>Sets <code>data-variant-id</code> and <code>value</code> — first available variant ID. Useful for <code>{"<input name=\"id\">"}</code> in cart forms.</s-text>
             </s-stack>
           </s-grid>
           <s-paragraph>Example — paste into <code>templates/page.wishlist.liquid</code>:</s-paragraph>
           <s-banner tone="info">
-            <pre style={{fontSize:"0.8rem", whiteSpace:"pre-wrap"}}>{`<template data-sai-wishlist-page>
+            <pre style={{fontSize:"0.8rem", whiteSpace:"pre-wrap"}}>{`<template data-silv-wishlist-page>
   <div class="card product-card">
-    <a class="card__media" data-sai-item-link>
-      <img class="card__image" data-sai-item-image>
+    <a class="card__media" data-silv-item-link>
+      <img class="card__image" data-silv-item-image>
     </a>
     <div class="card__content">
-      <a class="card__heading" data-sai-item-link data-sai-item-title></a>
-      <span class="card__price" data-sai-item-price></span>
+      <a class="card__heading" data-silv-item-link data-silv-item-title></a>
+      <span class="card__price" data-silv-item-price></span>
       <!-- Add to cart form — variant ID auto-filled -->
       <form action="/cart/add" method="post">
-        <input type="hidden" name="id" data-sai-item-variant-id>
+        <input type="hidden" name="id" data-silv-item-variant-id>
         <button type="submit" class="card__add-to-cart">Add to cart</button>
       </form>
-      <button class="card__btn" data-sai-item-remove>Remove</button>
+      <button class="card__btn" data-silv-item-remove>Remove</button>
     </div>
   </div>
 </template>`}</pre>
           </s-banner>
           <s-paragraph>
             Any element can have multiple hooks — for example an <code>{"<a>"}</code> with both
-            <code>data-sai-item-link</code> and <code>data-sai-item-title</code> gets both
+            <code>data-silv-item-link</code> and <code>data-silv-item-title</code> gets both
             the href and the title text.
           </s-paragraph>
           <s-paragraph>
-            Use <code>data-sai-item-variant-id</code> to add an <strong>Add to cart</strong> button
+            Use <code>data-silv-item-variant-id</code> to add an <strong>Add to cart</strong> button
             directly on the wishlist page. The app fills in the first available variant ID automatically:
           </s-paragraph>
           <s-banner tone="info">
-            <pre style={{fontSize:"0.8rem", whiteSpace:"pre-wrap"}}>{`<template data-sai-wishlist-page>
+            <pre style={{fontSize:"0.8rem", whiteSpace:"pre-wrap"}}>{`<template data-silv-wishlist-page>
   <div class="card product-card">
 
     <!-- Product image linking to product page -->
-    <a class="card__media" data-sai-item-link>
-      <img class="card__image" data-sai-item-image>
+    <a class="card__media" data-silv-item-link>
+      <img class="card__image" data-silv-item-image>
     </a>
 
     <div class="card__content">
       <!-- Product title linking to product page -->
-      <a class="card__heading" data-sai-item-link data-sai-item-title></a>
+      <a class="card__heading" data-silv-item-link data-silv-item-title></a>
 
       <!-- Product price (hidden if "Show prices" is off in settings) -->
-      <span class="card__price" data-sai-item-price></span>
+      <span class="card__price" data-silv-item-price></span>
 
       <!-- Add to cart form — variant ID is filled automatically -->
       <form action="/cart/add" method="post">
-        <input type="hidden" name="id" data-sai-item-variant-id>
+        <input type="hidden" name="id" data-silv-item-variant-id>
         <input type="hidden" name="quantity" value="1">
         <button type="submit" name="add" class="btn button">
           Add to cart
@@ -488,7 +488,7 @@ export default function HowToUsePage() {
       </form>
 
       <!-- Remove from wishlist button -->
-      <button class="card__btn" data-sai-item-remove>Remove</button>
+      <button class="card__btn" data-silv-item-remove>Remove</button>
     </div>
 
   </div>
@@ -518,7 +518,7 @@ export default function HowToUsePage() {
           <s-banner tone="warning">
             The cart form works for simple products. For products with multiple variants
             (size, color, etc.) the app picks the first available variant. If you need
-            full variant selection, use <code>data-sai-item-product-id</code> to read the
+            full variant selection, use <code>data-silv-item-product-id</code> to read the
             product ID and build your own variant picker.
           </s-banner>
         </s-section>
@@ -538,14 +538,14 @@ export default function HowToUsePage() {
       <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
-    <span class="header-wishlist-badge" data-sai-wishlist-count>0</span>
+    <span class="header-wishlist-badge" data-silv-wishlist-count>0</span>
   </span>
   <span class="hidden hide header-wishlist-text">Wishlist</span>
 </a>
 
 <script>
   (() => {
-    const count = document.querySelector('[data-sai-wishlist-count]');
+    const count = document.querySelector('[data-silv-wishlist-count]');
     if (!count) return;
     const update = () => {
       try {
@@ -650,7 +650,7 @@ export default function HowToUsePage() {
           <s-box border="base" borderRadius="base" padding="base">
             <s-grid gap="small-200">
               <s-text><strong>CSS conflicts</strong></s-text>
-              <s-paragraph>All classes are prefixed with <code>.sai-wishlist</code>. Override them in your theme CSS.</s-paragraph>
+              <s-paragraph>All classes are prefixed with <code>.silv-wishlist</code>. Override them in your theme CSS.</s-paragraph>
             </s-grid>
           </s-box>
         </s-grid>
