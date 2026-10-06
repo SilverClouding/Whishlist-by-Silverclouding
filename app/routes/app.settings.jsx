@@ -11,7 +11,7 @@ const defaults = {
   buttonLabel:    "Remove",
   showAddToCart:  false,
   addToCartLabel: "Add to cart",
-  cardClass:      "sai-wishlist-page__item",
+  cardClass:      "silv-wishlist-page__item",
   customCss:      "",
   toastBg:        "#1a1a1a",
   toastColor:     "#ffffff",

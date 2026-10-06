@@ -71,7 +71,7 @@ model WishlistSettings {
   buttonLabel     String   @default("Remove")
   showAddToCart   Boolean  @default(false)
   addToCartLabel  String   @default("Add to cart")
-  cardClass       String   @default("sai-wishlist-page__item")
+  cardClass       String   @default("silv-wishlist-page__item")
   customCss       String   @default("")
   // Toast notification
   toastBg         String   @default("#1a1a1a")

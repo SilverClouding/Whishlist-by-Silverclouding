@@ -159,7 +159,7 @@ export const loader = async ({ request }) => {
           showPrices: true,
           showRemove: true,
           buttonLabel: "Remove",
-          cardClass: "sai-wishlist-page__item",
+          cardClass: "silv-wishlist-page__item",
           customCss: "",
           buttonMode: "icon-text",
           customSvg: "",

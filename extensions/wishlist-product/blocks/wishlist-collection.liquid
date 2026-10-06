@@ -7,33 +7,33 @@
   The <template> is invisible until JS clones it onto each product card.
   All appearance data lives in CSS custom properties set inline.
 {%- endcomment -%}
-<template data-sai-collection-tpl>
+<template data-silv-collection-tpl>
   <button
     type="button"
-    class="sai-wishlist sai-wishlist--collection"
-    data-sai-collection-wishlist
+    class="silv-wishlist silv-wishlist--collection"
+    data-silv-collection-wishlist
     aria-label="Add to wishlist"
     style="
-      --sai-btn-color: {{ btn_color }};
-      --sai-btn-active-color: {{ btn_active_color }};
-      --sai-icon-color: {{ icon_color }};
+      --silv-btn-color: {{ btn_color }};
+      --silv-btn-active-color: {{ btn_active_color }};
+      --silv-icon-color: {{ icon_color }};
     "
   >
     {%- if custom_svg != blank -%}
-      <span class="sai-wishlist__icon sai-wishlist__icon--default" aria-hidden="true">
+      <span class="silv-wishlist__icon silv-wishlist__icon--default" aria-hidden="true">
         {{- custom_svg -}}
       </span>
-      <span class="sai-wishlist__icon sai-wishlist__icon--active" aria-hidden="true">
+      <span class="silv-wishlist__icon silv-wishlist__icon--active" aria-hidden="true">
         {{- custom_svg -}}
       </span>
     {%- else -%}
-      <span class="sai-wishlist__icon sai-wishlist__icon--default" aria-hidden="true">
+      <span class="silv-wishlist__icon silv-wishlist__icon--default" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </span>
-      <span class="sai-wishlist__icon sai-wishlist__icon--active" aria-hidden="true">
+      <span class="silv-wishlist__icon silv-wishlist__icon--active" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
@@ -57,7 +57,7 @@
       const visitorStorageKey = 'silverclouding_wishlist_visitor';
       const endpoint        = '/apps/silverclouding-wishlist';
 
-      const tpl = document.querySelector('[data-sai-collection-tpl]');
+      const tpl = document.querySelector('[data-silv-collection-tpl]');
       if (!tpl) return;
 
       let customerAuthenticated = false;
@@ -205,12 +205,12 @@
       const attach = async (link) => {
         const handle = handleFromLink(link);
         const card = link.closest(CARD_SELECTOR);
-        if (!handle || !card || card.dataset.saiWishlistAttaching || card.querySelector('[data-sai-collection-wishlist]')) return;
+        if (!handle || !card || card.dataset.silvWishlistAttaching || card.querySelector('[data-silv-collection-wishlist]')) return;
 
-        card.dataset.saiWishlistAttaching = '1';
+        card.dataset.silvWishlistAttaching = '1';
 
-        const button = tpl.content.cloneNode(true).querySelector('[data-sai-collection-wishlist]');
-        if (!button) { delete card.dataset.saiWishlistAttaching; return; }
+        const button = tpl.content.cloneNode(true).querySelector('[data-silv-collection-wishlist]');
+        if (!button) { delete card.dataset.silvWishlistAttaching; return; }
 
         card.style.position = 'relative';
         card.append(button);
@@ -236,7 +236,7 @@
           });
         } catch (err) {
           button.remove();
-          delete card.dataset.saiWishlistAttaching;
+          delete card.dataset.silvWishlistAttaching;
           console.error('Collection wishlist product lookup failed', err);
         }
       };
@@ -274,7 +274,7 @@
       window.addEventListener('storage', (e) => { if (e.key === storageKey) scan(); });
 
       window.addEventListener('silverclouding:wishlist-updated', () => {
-        document.querySelectorAll('[data-sai-collection-wishlist]').forEach((btn) => {
+        document.querySelectorAll('[data-silv-collection-wishlist]').forEach((btn) => {
           const card = btn.parentElement;
           const link = card && card.querySelector('a[href*="/products/"]');
           if (!link) return;

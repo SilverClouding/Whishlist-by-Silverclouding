@@ -19,21 +19,21 @@ Renders a customizable wishlist grid with app-proxy sync.
 {% assign wp_btn_label    = button_label  | default: 'Remove' %}
 {% assign wp_card_class   = card_class    | default: '' %}
 
-<section class="sai-wishlist-page" data-sai-wishlist-page>
-  <div class="sai-wishlist-page__header">
-    <h2 class="sai-wishlist-page__heading">{{ wp_heading }}</h2>
-    <div class="sai-wishlist-page__actions">
-      <button type="button" class="sai-wishlist-page__share" data-sai-wishlist-share hidden>
+<section class="silv-wishlist-page" data-silv-wishlist-page>
+  <div class="silv-wishlist-page__header">
+    <h2 class="silv-wishlist-page__heading">{{ wp_heading }}</h2>
+    <div class="silv-wishlist-page__actions">
+      <button type="button" class="silv-wishlist-page__share" data-silv-wishlist-share hidden>
         Share wishlist
       </button>
-      <button type="button" class="sai-wishlist-page__clear" data-sai-wishlist-clear hidden>
+      <button type="button" class="silv-wishlist-page__clear" data-silv-wishlist-clear hidden>
         Clear all
       </button>
     </div>
   </div>
-  <p class="sai-wishlist-page__empty" data-sai-wishlist-empty hidden>{{ wp_empty_msg }}</p>
-  <ul class="sai-wishlist-page__items" data-sai-wishlist-items
-      style="--sai-wishlist-columns: {{ wp_columns }}"></ul>
+  <p class="silv-wishlist-page__empty" data-silv-wishlist-empty hidden>{{ wp_empty_msg }}</p>
+  <ul class="silv-wishlist-page__items" data-silv-wishlist-items
+      style="--silv-wishlist-columns: {{ wp_columns }}"></ul>
 </section>
 
 <script>
@@ -60,10 +60,10 @@ Renders a customizable wishlist grid with app-proxy sync.
     const page          = script && script.previousElementSibling;
     if (!page) return;
 
-    const itemsEl  = page.querySelector('[data-sai-wishlist-items]');
-    const emptyEl  = page.querySelector('[data-sai-wishlist-empty]');
-    const clearBtn = page.querySelector('[data-sai-wishlist-clear]');
-    const shareBtn = page.querySelector('[data-sai-wishlist-share]');
+    const itemsEl  = page.querySelector('[data-silv-wishlist-items]');
+    const emptyEl  = page.querySelector('[data-silv-wishlist-empty]');
+    const clearBtn = page.querySelector('[data-silv-wishlist-clear]');
+    const shareBtn = page.querySelector('[data-silv-wishlist-share]');
     if (!itemsEl || !emptyEl || !clearBtn) return;
 
     // ── Helpers ──────────────────────────────────────────────────────────
@@ -85,38 +85,38 @@ Renders a customizable wishlist grid with app-proxy sync.
 
     // ── Custom CSS injection ──────────────────────────────────────────────
     const applyCustomCss = (css) => {
-      let el = document.querySelector('[data-sai-wishlist-custom-css]');
-      if (!el) { el = document.createElement('style'); el.dataset.saiWishlistCustomCss = ''; document.head.append(el); }
+      let el = document.querySelector('[data-silv-wishlist-custom-css]');
+      if (!el) { el = document.createElement('style'); el.dataset.silvWishlistCustomCss = ''; document.head.append(el); }
       el.textContent = css || '';
     };
 
     // ── Render ────────────────────────────────────────────────────────────
     const render = () => {
       const items = getItems();
-      page.querySelector('.sai-wishlist-page__heading').textContent = settings.heading;
+      page.querySelector('.silv-wishlist-page__heading').textContent = settings.heading;
       emptyEl.textContent   = settings.emptyMessage;
       emptyEl.hidden        = items.length > 0;
       clearBtn.hidden       = items.length === 0;
       if (shareBtn) shareBtn.hidden = items.length === 0;
-      itemsEl.style.setProperty('--sai-wishlist-columns', settings.columns);
+      itemsEl.style.setProperty('--silv-wishlist-columns', settings.columns);
       itemsEl.replaceChildren();
 
       items.forEach((item) => {
         const li = document.createElement('li');
-        li.className = `sai-wishlist-page__item ${settings.cardClass || ''}`.trim();
+        li.className = `silv-wishlist-page__item ${settings.cardClass || ''}`.trim();
         li.innerHTML = `
           <a href="/products/${encodeURIComponent(item.handle)}">
-            <img data-sai-wishlist-image alt="" loading="lazy">
+            <img data-silv-wishlist-image alt="" loading="lazy">
           </a>
-          <div class="sai-wishlist-page__info">
-            <a class="sai-wishlist-page__title" href="/products/${encodeURIComponent(item.handle)}">${esc(item.title) || 'Product'}</a>
-            ${settings.showPrices && item.price ? `<div class="sai-wishlist-page__price">${esc(item.price)}</div>` : ''}
-            ${settings.showRemove ? `<button type="button" class="sai-wishlist-page__remove">${esc(settings.buttonLabel)}</button>` : ''}
+          <div class="silv-wishlist-page__info">
+            <a class="silv-wishlist-page__title" href="/products/${encodeURIComponent(item.handle)}">${esc(item.title) || 'Product'}</a>
+            ${settings.showPrices && item.price ? `<div class="silv-wishlist-page__price">${esc(item.price)}</div>` : ''}
+            ${settings.showRemove ? `<button type="button" class="silv-wishlist-page__remove">${esc(settings.buttonLabel)}</button>` : ''}
           </div>
         `;
 
         // Image with fallback
-        const img = li.querySelector('[data-sai-wishlist-image]');
+        const img = li.querySelector('[data-silv-wishlist-image]');
         img.alt = item.title || 'Product';
         img.src = item.image || '';
         img.addEventListener('error', async () => {
@@ -132,7 +132,7 @@ Renders a customizable wishlist grid with app-proxy sync.
         }, { once: true });
 
         // Remove button
-        const removeBtn = li.querySelector('.sai-wishlist-page__remove');
+        const removeBtn = li.querySelector('.silv-wishlist-page__remove');
         if (removeBtn) {
           removeBtn.addEventListener('click', async () => {
             removeBtn.disabled = true;

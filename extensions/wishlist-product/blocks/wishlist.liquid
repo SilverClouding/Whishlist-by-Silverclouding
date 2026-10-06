@@ -8,7 +8,7 @@
 {% assign custom_svg = block.settings.custom_svg %}
 
 <div
-  data-sai-wishlist
+  data-silv-wishlist
   data-product-id="{{ product_for_wishlist.id }}"
   data-product-handle="{{ product_for_wishlist.handle }}"
   data-product-title="{{ product_for_wishlist.title | escape }}"
@@ -18,26 +18,26 @@
   data-label-add="{{ label_add | escape }}"
   data-label-saved="{{ label_saved | escape }}"
   style="
-    --sai-btn-color: {{ btn_color }};
-    --sai-btn-active-color: {{ btn_active_color }};
-    --sai-icon-color: {{ icon_color }};
+    --silv-btn-color: {{ btn_color }};
+    --silv-btn-active-color: {{ btn_active_color }};
+    --silv-icon-color: {{ icon_color }};
   "
 >
   <button
     type="button"
-    class="sai-wishlist button"
-    data-sai-wishlist-button
+    class="silv-wishlist button"
+    data-silv-wishlist-button
     aria-label="{{ label_add | escape }}"
   >
     {% if custom_svg != blank %}
-      <span class="sai-wishlist__icon sai-wishlist__icon--default" aria-hidden="true">
+      <span class="silv-wishlist__icon silv-wishlist__icon--default" aria-hidden="true">
         {{ custom_svg }}
       </span>
-      <span class="sai-wishlist__icon sai-wishlist__icon--active" aria-hidden="true" style="display:none">
+      <span class="silv-wishlist__icon silv-wishlist__icon--active" aria-hidden="true" style="display:none">
         {{ custom_svg }}
       </span>
     {% else %}
-      <span class="sai-wishlist__icon sai-wishlist__icon--default" aria-hidden="true">
+      <span class="silv-wishlist__icon silv-wishlist__icon--default" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
           <path
             d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
@@ -49,7 +49,7 @@
         </svg>
       </span>
 
-      <span class="sai-wishlist__icon sai-wishlist__icon--active" aria-hidden="true" style="display:none">
+      <span class="silv-wishlist__icon silv-wishlist__icon--active" aria-hidden="true" style="display:none">
         <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
@@ -57,7 +57,7 @@
     {% endif %}
 
     {% if show_label %}
-      <span class="sai-wishlist__label" data-sai-wishlist-label>{{ label_add | escape }}</span>
+      <span class="silv-wishlist__label" data-silv-wishlist-label>{{ label_add | escape }}</span>
     {% endif %}
   </button>
 </div>
@@ -77,10 +77,10 @@
     const syncEndpoint = '/apps/silverclouding-wishlist';
 
     const container = script?.previousElementSibling;
-    if (!container?.hasAttribute('data-sai-wishlist')) return;
+    if (!container?.hasAttribute('data-silv-wishlist')) return;
 
-    const button = container.querySelector('[data-sai-wishlist-button]');
-    const labelEl = container.querySelector('[data-sai-wishlist-label]');
+    const button = container.querySelector('[data-silv-wishlist-button]');
+    const labelEl = container.querySelector('[data-silv-wishlist-label]');
     if (!button) return;
 
     const productId = container.dataset.productId;
