@@ -3,7 +3,7 @@
 client_id = "5d4d86dbd557ce786f37d069c7a88aa2"
 application_url = "https://whishlist-by-silverclouding.vercel.app/"
 embedded = true
-name = "Whislist by Silverclouding"
+name = "Wishlist by Silverclouding"
 
 [access_scopes]
 scopes = "read_orders,read_themes"

@@ -14,7 +14,7 @@
  */
 
 const EXTENSION_UID = "01a0ecbd-948b-75d1-8ec8-38f3d977d0f5";
-const APP_HANDLE = "whislist-by-silverclouding";
+const APP_HANDLE = "wishlist-by-silverclouding";
 
 const GET_MAIN_THEME = `#graphql
   query GetMainTheme {
