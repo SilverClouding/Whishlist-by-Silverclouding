@@ -31,7 +31,7 @@ monthly usage limit.
   SQLite database is suitable only for a single persistent instance.
 - Configure the app proxy route `/apps/silverclouding-wishlist` in the Shopify app.
 - Test guest add/remove, customer login sync, theme blocks, custom SVG
-  sanitization, and app-proxy requests on a development store before review.
+  sanitization, and app-proxy requests on a development store before review. 
 - Provide a privacy policy, support contact, and accurate App Store listing
   before submitting the app.
 
