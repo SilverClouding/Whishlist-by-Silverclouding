@@ -190,7 +190,7 @@ Content-Type: application/json
           or via Shopify's token exchange for server-side apps).
         </s-paragraph>
         <s-banner tone="info">
-          <code>Base URL: https://silverclouding-wishlist.vercel.app/app/api</code>
+          <code>Base URL: https://wishlist-by-silverclouding.vercel.app/app/api</code>
         </s-banner>
 
         <s-section heading="GET ?resource=items — Customer items">
