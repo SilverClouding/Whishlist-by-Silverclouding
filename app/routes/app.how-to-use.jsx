@@ -1,6 +1,18 @@
+import { useLoaderData } from "react-router";
+import { authenticate } from "../shopify.server";
+import { resolveLocale, getAdminTranslations } from "../i18n.server";
+
+export const loader = async ({ request }) => {
+  const { session } = await authenticate.admin(request);
+  const locale = resolveLocale(request, session);
+  const t = getAdminTranslations(locale).howToUse;
+  return { t };
+};
+
 export default function HowToUsePage() {
+  const { t } = useLoaderData();
   return (
-    <s-page heading="How to use Silverclouding Wishlist">
+    <s-page heading={t?.page_heading || "How to use Silverclouding Wishlist"}>
 
       {/* ── Method 1: App Blocks ── */}
       <s-section heading="Method 1 — App blocks (recommended)">
@@ -140,24 +152,47 @@ export default function HowToUsePage() {
     };
 
     const sync = async (operation, item) => {
+      if (operation === 'add' && window.silvercloudingLimitReached) {
+        return false;
+      }
       if (!customerAuthenticated) {
-        try { await fetch(syncEndpoint, { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin', body:JSON.stringify({ operation, visitorId:getVisitorId(), ...item }) }); } catch {}
+        try {
+          const res = await fetch(syncEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ operation, visitorId: getVisitorId(), ...item })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (res.status === 429 || data?.limitReached) {
+            window.silvercloudingLimitReached = true;
+            return false;
+          }
+          if (operation === 'add' && (!res.ok || !data?.tracked)) {
+            return false;
+          }
+        } catch {
+          if (operation === 'add') return false;
+        }
         return persistLocal(operation, item);
       }
-      // Handle limit reached
-      const res = await fetch(syncEndpoint, { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin', body:JSON.stringify({ operation, visitorId:getVisitorId(), ...item }) });
+      // Logged in customer
+      const res = await fetch(syncEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ operation, visitorId: getVisitorId(), ...item })
+      });
       if (res.status === 429) {
-        const d = await res.json().catch(()=>({}));
-        if (operation !== 'add') return getWishlist();
-        announce(d.error || 'Monthly wishlist limit reached. Upgrade your plan.');
+        window.silvercloudingLimitReached = true;
         return getWishlist();
       }
-      if (!res.ok) { customerAuthenticated = false; return persistLocal(operation, item); }
-      const data = await res.json();
-      if (!Array.isArray(data.items)) { customerAuthenticated = false; return sync(operation, item); }
-      const synced = data.items.map(s => ({ id:s.productId, handle:s.productHandle, title:s.productTitle, image:s.productImage||'', price:s.productPrice||'', addedAt:s.createdAt }));
+      if (!res.ok) { customerAuthenticated = false; return false; }
+      const data = await res.json().catch(() => ({}));
+      if (!Array.isArray(data.items)) { customerAuthenticated = false; return false; }
+      const synced = data.items.map(s => ({ id: s.productId, handle: s.productHandle, title: s.productTitle, image: s.productImage || '', price: s.productPrice || '', addedAt: s.createdAt }));
       saveWishlist(synced);
-      window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', { detail: { message: operation==='add'?'Added to wishlist':'Removed from wishlist' } }));
+      window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', { detail: { message: operation === 'add' ? 'Added to wishlist' : 'Removed from wishlist' } }));
       return synced;
     };
 
@@ -285,22 +320,45 @@ export default function HowToUsePage() {
     };
 
     const sync = async (operation, item) => {
+      if (operation === 'add' && window.silvercloudingLimitReached) {
+        return false;
+      }
       if (!customerAuthenticated) {
-        try { await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({operation,visitorId:getVisitorId(),...item})}); } catch {}
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ operation, visitorId: getVisitorId(), ...item })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (res.status === 429 || data?.limitReached) {
+            window.silvercloudingLimitReached = true;
+            return false;
+          }
+          if (operation === 'add' && (!res.ok || !data?.tracked)) {
+            return false;
+          }
+        } catch {
+          if (operation === 'add') return false;
+        }
         return persistLocal(operation, item);
       }
-      const res = await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({operation,visitorId:getVisitorId(),...item})});
-      if (res.status===429) {
-        const d = await res.json().catch(()=>({}));
-        if (operation!=='add') return readItems();
-        announce(d.error||'Monthly wishlist limit reached.');
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ operation, visitorId: getVisitorId(), ...item })
+      });
+      if (res.status === 429) {
+        window.silvercloudingLimitReached = true;
         return readItems();
       }
-      const data = await res.json().catch(()=>({}));
-      if (!res.ok||!Array.isArray(data.items)) { customerAuthenticated=false; return persistLocal(operation,item); }
-      const synced = data.items.map((s)=>({id:s.productId,handle:s.productHandle,title:s.productTitle,image:s.productImage||'',price:s.productPrice||'',addedAt:s.createdAt}));
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !Array.isArray(data.items)) { customerAuthenticated = false; return false; }
+      const synced = data.items.map(s => ({ id: s.productId, handle: s.productHandle, title: s.productTitle, image: s.productImage || '', price: s.productPrice || '', addedAt: s.createdAt }));
       saveItems(synced);
-      announce(operation==='add'?'Added to wishlist':'Removed from wishlist');
+      announce(operation === 'add' ? 'Added to wishlist' : 'Removed from wishlist');
       return synced;
     };
 

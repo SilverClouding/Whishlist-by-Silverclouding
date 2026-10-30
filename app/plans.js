@@ -13,12 +13,21 @@ export const PLANS = [
     trialDays: 0,
   },
   {
+    id: "starter",
+    name: "Starter",
+    price: 5,
+    limit: 5000,
+    description: "Great for growing stores needing more wishlist capacity.",
+    features: ["5,000 wishlist saves per month", "All storefront blocks", "Full analytics & activity graph", "Standard support"],
+    trialDays: 7,
+  },
+  {
     id: "growth",
     name: "Growth",
     price: 10,
     limit: 10000,
-    description: "For growing stores with active shoppers.",
-    features: ["10,000 wishlist saves per month", "All storefront blocks", "Full analytics", "Priority support"],
+    description: "For active stores with engaged shoppers.",
+    features: ["10,000 wishlist saves per month", "All storefront blocks", "Full analytics & activity graph", "Priority support"],
     trialDays: 7,
   },
   {
@@ -27,7 +36,7 @@ export const PLANS = [
     price: 30,
     limit: Infinity,
     description: "No limits. For high-volume stores.",
-    features: ["Unlimited wishlist saves", "All storefront blocks", "Full analytics", "Priority support"],
+    features: ["Unlimited wishlist saves", "All storefront blocks", "Full analytics & activity graph", "Priority support"],
     trialDays: 7,
   },
 ];

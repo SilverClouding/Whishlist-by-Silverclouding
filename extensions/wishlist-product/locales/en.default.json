@@ -1,7 +1,11 @@
 {
   "wishlist": {
+    "heading": "My wishlist",
+    "shared_wishlist_heading": "Shared wishlist",
+    "empty_message": "You have not saved any products yet.",
     "add_to_wishlist": "Add to wishlist",
     "saved": "Saved",
+    "remove": "Remove",
     "remove_from_wishlist": "Remove from wishlist",
     "added_to_wishlist": "Added to wishlist",
     "removed_from_wishlist": "Removed from wishlist",
@@ -9,17 +13,17 @@
     "limit_reached": "Monthly wishlist limit reached. Upgrade your plan.",
     "temporarily_unavailable": "Wishlist is temporarily unavailable. Please try again.",
     "sold_out": "Sold out",
+    "add_to_cart": "Add to cart",
     "added_to_cart": "Added to cart",
     "add_to_cart_error": "Could not add this item to the cart. Please try again.",
+    "share_wishlist": "Share wishlist",
+    "share_copied": "Link copied!",
+    "copy_share_link": "Copy this link to share your wishlist:",
+    "clear_all": "Clear all",
+    "product": "Product",
+    "view_wishlist": "View wishlist",
+    "wishlist": "Wishlist",
     "saved_items": "Saved items",
     "nothing_saved_yet": "Nothing saved yet."
-  },
-  "ratings": {
-    "stars": {
-      "label": "Ratings"
-    },
-    "home": {
-      "recommendationText": "Recommended Product!"
-    }
   }
 }

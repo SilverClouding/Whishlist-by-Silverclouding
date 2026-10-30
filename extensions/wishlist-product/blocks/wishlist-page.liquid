@@ -35,20 +35,33 @@
  
 </style>
 
+{% assign default_heading = 'wishlist.heading' | t %}
+{% assign page_heading = block.settings.heading | default: default_heading %}
+{% assign default_empty_message = 'wishlist.empty_message' | t %}
+{% assign page_empty_message = block.settings.empty_message | default: default_empty_message %}
+{% assign default_share_label = 'wishlist.share_wishlist' | t %}
+{% assign page_share_label = block.settings.share_label | default: default_share_label %}
+{% assign default_clear_label = 'wishlist.clear_all' | t %}
+{% assign page_clear_label = block.settings.clear_label | default: default_clear_label %}
+{% assign default_button_label = 'wishlist.remove' | t %}
+{% assign page_button_label = block.settings.button_label | default: default_button_label %}
+{% assign default_atc_label = 'wishlist.add_to_cart' | t %}
+{% assign page_atc_label = block.settings.add_to_cart_label | default: default_atc_label %}
+
 <section class="silv-wishlist-page" data-silv-wishlist-page hidden style="--padding-block-start: {{ block.settings.padding-block-start }}px; --padding-block-end: {{ block.settings.padding-block-end }}px;">
   <div class="silv-wishlist-page__header">
-    <h2 class="wislist-page-title h2">{{ block.settings.heading }}</h2>
+    <h2 class="wislist-page-title h2">{{ page_heading | escape }}</h2>
     <div class="silv-wishlist-page__actions">
       <button type="button" class="silv-wishlist-page__share button" data-silv-wishlist-share hidden>
-        Share wishlist
+        {{ page_share_label | escape }}
       </button>
       <button type="button" class="silv-wishlist-page__clear button" data-silv-wishlist-clear hidden>
-        Clear all
+        {{ page_clear_label | escape }}
       </button>
     </div>
    
   </div>
- <p data-silv-wishlist-empty hidden>{{ block.settings.empty_message }}</p>
+ <p data-silv-wishlist-empty hidden>{{ page_empty_message | escape }}</p>
   <div class=" grid main-collection-grid spacing-style" style="
     --grid--margin--mobile: 0 var(--margin-lg);
     --grid-column--desktop: var(--centered);
@@ -83,18 +96,33 @@
     const visitorStorageKey = 'silverclouding_wishlist_visitor';
     const syncEndpoint = '/apps/silverclouding-wishlist';
     let localRevision = 0;
-    let customerAuthenticated = false;    let settings = {
-      heading: '{{ block.settings.heading | escape }}',
-      emptyMessage: '{{ block.settings.empty_message | escape }}',
+    let customerAuthenticated = false;
+    const defaultHeading = {{ 'wishlist.heading' | t | json }};
+    const defaultEmptyMessage = {{ 'wishlist.empty_message' | t | json }};
+    const defaultRemoveLabel = {{ 'wishlist.remove' | t | json }};
+    const defaultAddToCartLabel = {{ 'wishlist.add_to_cart' | t | json }};
+    const defaultShareLabel = {{ 'wishlist.share_wishlist' | t | json }};
+    const defaultClearLabel = {{ 'wishlist.clear_all' | t | json }};
+    const shareCopiedLabel = {{ 'wishlist.share_copied' | t | json }};
+    const copySharePrompt = {{ 'wishlist.copy_share_link' | t | json }};
+    const sharedWishlistHeading = {{ 'wishlist.shared_wishlist_heading' | t | json }};
+    const productFallbackTitle = {{ 'wishlist.product' | t | json }};
+
+    const extensionSettings = {
+      heading: {{ page_heading | json }},
+      emptyMessage: {{ page_empty_message | json }},
       columns: {{ block.settings.columns | default: 4 }},
-      showPrices: {{ block.settings.show_prices | default: true | json }},
-      showRemove: {{ block.settings.show_remove | default: true | json }},
-      buttonLabel: '{{ block.settings.button_label | escape }}',
-      showAddToCart: {{ block.settings.show_add_to_cart | default: false | json }},
-      addToCartLabel: '{{ block.settings.add_to_cart_label | default: "Add to cart" | escape }}',
+      showPrices: {% if block.settings.show_prices %}true{% else %}false{% endif %},
+      showRemove: {% if block.settings.show_remove %}true{% else %}false{% endif %},
+      buttonLabel: {{ page_button_label | json }},
+      showAddToCart: {% if block.settings.show_add_to_cart %}true{% else %}false{% endif %},
+      addToCartLabel: {{ page_atc_label | json }},
+      shareLabel: {{ page_share_label | json }},
+      clearLabel: {{ page_clear_label | json }},
       cardClass: 'silv-wishlist-page__item',
       customCss: ''
     };
+    let settings = { ...extensionSettings };
     const script = _script;
     const page = script && script.previousElementSibling;
     if (!page) return;
@@ -158,9 +186,43 @@
       }
     };
 
+    const currentLocale = {{ request.locale.iso_code | downcase | json }};
     const applySettings = (data) => {
       if (!data?.settings) return;
-      settings = { ...settings, ...data.settings };
+      const appSettings = data.settings || {};
+      let customTranslations = {};
+      try {
+        customTranslations = typeof appSettings.translations === 'string'
+          ? JSON.parse(appSettings.translations)
+          : (appSettings.translations || {});
+      } catch {}
+      const localeOverrides = customTranslations[currentLocale] || customTranslations[currentLocale.split('-')[0]] || {};
+
+      // Extension block settings managed in Theme Editor take precedence for storefront design.
+      // App settings supply global customCss, cardClass, and fallbacks when extension fields are blank.
+      settings = {
+        ...appSettings,
+        ...extensionSettings,
+        heading: localeOverrides.heading || extensionSettings.heading || appSettings.heading || defaultHeading,
+        emptyMessage: localeOverrides.empty_message || extensionSettings.emptyMessage || appSettings.emptyMessage || defaultEmptyMessage,
+        buttonLabel: localeOverrides.remove || extensionSettings.buttonLabel || appSettings.buttonLabel || defaultRemoveLabel,
+        showAddToCart: extensionSettings.showAddToCart,
+        addToCartLabel: localeOverrides.add_to_cart || extensionSettings.addToCartLabel || defaultAddToCartLabel,
+        shareLabel: localeOverrides.share_wishlist || extensionSettings.shareLabel || defaultShareLabel,
+        clearLabel: localeOverrides.clear_all || extensionSettings.clearLabel || defaultClearLabel,
+        soldOutLabel: localeOverrides.sold_out || {{ 'wishlist.sold_out' | t | json }},
+        addedToCartToast: localeOverrides.added_to_cart || {{ 'wishlist.added_to_cart' | t | json }},
+        removedToast: localeOverrides.removed_from_wishlist || {{ 'wishlist.removed_from_wishlist' | t | json }},
+        clearedToast: localeOverrides.wishlist_cleared || {{ 'wishlist.wishlist_cleared' | t | json }},
+        shareCopiedToast: localeOverrides.share_copied || shareCopiedLabel,
+        showPrices: extensionSettings.showPrices,
+        showRemove: extensionSettings.showRemove,
+        columns: extensionSettings.columns,
+        cardClass: appSettings.cardClass || extensionSettings.cardClass,
+        customCss: appSettings.customCss || '',
+      };
+      if (clearButton && settings.clearLabel) clearButton.textContent = settings.clearLabel;
+      if (shareButton && settings.shareLabel) shareButton.textContent = settings.shareLabel;
       let customStyle = document.querySelector('[data-silv-wishlist-custom-css]');
       if (!customStyle) {
         customStyle = document.createElement('style');
@@ -259,16 +321,18 @@
       const actions = document.createElement('div');
       actions.className = 'silv-wishlist-page__card-actions';
 
-      if (settings.showAddToCart && productData?.variantId) {
+      const variantId = productData?.variantId || item.variantId;
+      if (settings.showAddToCart && variantId) {
         const form = document.createElement('form');
         form.className = 'silv-wishlist-page__atc-form';
         form.action = '/cart/add';
         form.method = 'post';
-        form.innerHTML = `<input type="hidden" name="id"><input type="hidden" name="quantity" value="1"><button type="submit" name="add" class="silv-wishlist-page__add-to-cart button">${esc(settings.addToCartLabel)}</button>`;
-        form.querySelector('[name="id"]').value = productData.variantId;
+        form.innerHTML = `<input type="hidden" name="id"><input type="hidden" name="quantity" value="1"><button type="submit" name="add" class="silv-wishlist-page__add-to-cart button">${esc(settings.addToCartLabel || 'Add to cart')}</button>`;
+        form.querySelector('[name="id"]').value = variantId;
         const addButton = form.querySelector('button');
-        addButton.disabled = !productData.variantAvailable;
-        if (!productData.variantAvailable) addButton.textContent = {{ 'wishlist.sold_out' | t | json }};
+        const isAvailable = productData ? productData.variantAvailable !== false : true;
+        addButton.disabled = !isAvailable;
+        if (!isAvailable) addButton.textContent = settings.soldOutLabel || {{ 'wishlist.sold_out' | t | json }};
         actions.append(form);
       }
 
@@ -333,7 +397,7 @@
 
         refreshCartUi(data);
         window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', {
-          detail: { message: {{ 'wishlist.added_to_cart' | t | json }} }
+          detail: { message: settings.addedToCartToast || {{ 'wishlist.added_to_cart' | t | json }} }
         }));
       } catch (error) {
         window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', {
@@ -427,7 +491,7 @@
             <img data-silv-wishlist-image alt="" loading="lazy">
           </a>
           <div class="silv-wishlist-page__info">
-            <a class="silv-wishlist-page__title" href="/products/${encodeURIComponent(item.handle)}">${esc(item.title) || 'Product'}</a>
+            <a class="silv-wishlist-page__title" href="/products/${encodeURIComponent(item.handle)}">${esc(item.title) || esc(productFallbackTitle)}</a>
             ${productData?.variantTitle && productData.variantTitle !== 'Default Title' ? `<div class="silv-wishlist-page__variant">${esc(productData.variantTitle)}</div>` : ''}
             ${settings.showPrices && item.price ? `<div class="silv-wishlist-page__price">${esc(item.price)}</div>` : ''}
           </div>
@@ -465,7 +529,7 @@
           });
           localStorage.setItem(storageKey, JSON.stringify(getItems().filter((s) => !(String(s.id) === String(item.id) && String(s.variantId || '') === String(item.variantId || '')))));
           window.dispatchEvent(new CustomEvent('silverclouding:wishlist-updated'));
-          window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', { detail: { message: {{ 'wishlist.removed_from_wishlist' | t | json }} } }));
+          window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', { detail: { message: settings.removedToast || {{ 'wishlist.removed_from_wishlist' | t | json }} } }));
           return;
         }
         const response = await fetch(syncEndpoint, {
@@ -480,7 +544,7 @@
         const serverItems = data.items.map((s) => ({ id: s.productId, variantId: s.variantId || '', variantTitle: s.variantTitle || '', handle: s.productHandle, title: s.productTitle, image: s.productImage || '', price: s.productPrice || '', addedAt: s.createdAt }));
         localStorage.setItem(storageKey, JSON.stringify(serverItems));
         window.dispatchEvent(new CustomEvent('silverclouding:wishlist-updated'));
-        window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', { detail: { message: {{ 'wishlist.removed_from_wishlist' | t | json }} } }));
+        window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', { detail: { message: settings.removedToast || {{ 'wishlist.removed_from_wishlist' | t | json }} } }));
       } catch (error) {
         emptyMessage.textContent = error.message;
         emptyMessage.hidden = false;
@@ -499,6 +563,8 @@
       const items = getItems();
       page.querySelector('h2').textContent = settings.heading;
       emptyMessage.textContent = settings.emptyMessage;
+      if (clearButton && settings.clearLabel) clearButton.textContent = settings.clearLabel;
+      if (shareButton && settings.shareLabel) shareButton.textContent = settings.shareLabel;
       itemsContainer.style.setProperty('--silv-wishlist-columns', settings.columns);
       itemsContainer.replaceChildren();
       emptyMessage.hidden = items.length > 0;
@@ -517,16 +583,18 @@
     };
 
     clearButton.addEventListener('click', async () => {
-      if (clearButton.disabled || getItems().length === 0) return;
+      const itemsToClear = getItems();
+      const count = itemsToClear.length;
+      if (clearButton.disabled || count === 0) return;
       clearButton.disabled = true;
       localRevision += 1;
       try {
         if (!customerAuthenticated) {
-          await trackGuest('clear');
+          await trackGuest('clear', { count });
           localStorage.setItem(storageKey, '[]');
           window.dispatchEvent(new CustomEvent('silverclouding:wishlist-updated'));
           window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', {
-            detail: { message: {{ 'wishlist.wishlist_cleared' | t | json }} }
+            detail: { message: settings.clearedToast || {{ 'wishlist.wishlist_cleared' | t | json }} }
           }));
           return;
         }
@@ -534,7 +602,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
-          body: JSON.stringify({ operation: 'clear', visitorId: getVisitorId() })
+          body: JSON.stringify({ operation: 'clear', count, visitorId: getVisitorId() })
         });
         const data = await response.json().catch(() => ({}));
         if (!response.ok || !data.authenticated || !Array.isArray(data.items)) {
@@ -555,6 +623,9 @@
           addedAt: item.createdAt
         }))));
         window.dispatchEvent(new CustomEvent('silverclouding:wishlist-updated'));
+        window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', {
+          detail: { message: settings.clearedToast || {{ 'wishlist.wishlist_cleared' | t | json }} }
+        }));
       } catch (error) {
         emptyMessage.textContent = error.message;
         emptyMessage.hidden = false;
@@ -605,7 +676,7 @@
     if (isSharedView) {
       localStorage.setItem(storageKey, JSON.stringify(sharedItems));
       settings.showRemove = false;
-      settings.heading = 'Shared wishlist';
+      settings.heading = sharedWishlistHeading;
       if (clearButton) clearButton.hidden = true;
       if (shareButton) shareButton.hidden = true;
     }
@@ -615,17 +686,17 @@
         const shareUrl = buildShareUrl();
         if (navigator.share) {
           try {
-            await navigator.share({ title: 'My wishlist', url: shareUrl });
+            await navigator.share({ title: settings.heading || defaultHeading, url: shareUrl });
             return;
           } catch {}
         }
         try {
           await navigator.clipboard.writeText(shareUrl);
           const original = shareButton.textContent;
-          shareButton.textContent = 'Link copied!';
+          shareButton.textContent = settings.shareCopiedToast || shareCopiedLabel;
           setTimeout(() => { shareButton.textContent = original; }, 2500);
         } catch {
-          prompt('Copy this link to share your wishlist:', shareUrl);
+          prompt(copySharePrompt, shareUrl);
         }
       });
     }
@@ -633,6 +704,7 @@
     render();
     loadAppSettings().catch(() => {}).then(render);
     if (!isSharedView) syncItems().catch(() => {});
+    document.addEventListener('silverclouding:settings-loaded', (e) => applySettings({ settings: e.detail }));
     window.addEventListener('silverclouding:wishlist-updated', render);
     window.addEventListener('storage', (event) => {
       if (event.key === storageKey) render();
@@ -703,7 +775,20 @@
       "type": "text",
       "id": "button_label",
       "label": "Remove button label",
+      "info": "Leave blank to use active store language.",
       "default": "Remove"
+    },
+    {
+      "type": "text",
+      "id": "share_label",
+      "label": "Share button label",
+      "info": "Leave blank to use active store language."
+    },
+    {
+      "type": "text",
+      "id": "clear_label",
+      "label": "Clear all button label",
+      "info": "Leave blank to use active store language."
     },
     {
       "type": "checkbox",

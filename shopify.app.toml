@@ -1,12 +1,12 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "5d4d86dbd557ce786f37d069c7a88aa2"
+name = "Wishlist by Silverclouding"
 application_url = "https://wishlist-by-silverclouding.vercel.app/"
 embedded = true
-name = "Wishlist by Silverclouding"
 
-[access_scopes]
-scopes = "read_orders,read_themes"
+[build]
+automatically_update_urls_on_dev = true
 
 [webhooks]
 api_version = "2026-10"
@@ -16,20 +16,25 @@ api_version = "2026-10"
   topics = [ "app/uninstalled" ]
 
   [[webhooks.subscriptions]]
+  uri = "/webhooks/compliance"
+  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
+
+  [[webhooks.subscriptions]]
   uri = "/webhooks/app/scopes_update"
   topics = [ "app/scopes_update" ]
 
-  [[webhooks.subscriptions]]
-  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
-  uri = "/webhooks/compliance"
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_orders,read_themes"
+optional_scopes = [ ]
+use_legacy_install_flow = false
 
 [auth]
-redirect_urls = [ "https://wishlist-by-silverclouding.vercel.app/auth/callback" ]
+redirect_urls = [
+  "https://wishlist-by-silverclouding.vercel.app/auth/callback"
+]
 
 [app_proxy]
 url = "https://wishlist-by-silverclouding.vercel.app/apps/silverclouding-wishlist"
 subpath = "silverclouding-wishlist"
 prefix = "apps"
-
-[build]
-automatically_update_urls_on_dev = true

@@ -1,0 +1,30 @@
+{
+  "wishlist": {
+    "heading": "Ma liste d'envies",
+    "shared_wishlist_heading": "Liste d'envies partagée",
+    "empty_message": "Vous n'avez pas encore enregistré de produits.",
+    "add_to_wishlist": "Ajouter à la liste d'envies",
+    "saved": "Enregistré",
+    "remove": "Supprimer",
+    "remove_from_wishlist": "Retirer de la liste d'envies",
+    "added_to_wishlist": "Ajouté à la liste d'envies",
+    "removed_from_wishlist": "Retiré de la liste d'envies",
+    "wishlist_cleared": "Liste d'envies effacée",
+    "limit_reached": "Limite mensuelle de liste d'envies atteinte.",
+    "temporarily_unavailable": "La liste d'envies est temporairement indisponible. Veuillez réessayer.",
+    "sold_out": "Épuisé",
+    "add_to_cart": "Ajouter au panier",
+    "added_to_cart": "Ajouté au panier",
+    "add_to_cart_error": "Impossible d'ajouter cet article au panier. Veuillez réessayer.",
+    "share_wishlist": "Partager la liste d'envies",
+    "share_copied": "Lien copié !",
+    "copy_share_link": "Copiez ce lien pour partager votre liste d'envies :",
+    "clear_all": "Tout effacer",
+    "product": "Produit",
+    "view_wishlist": "Voir la liste d'envies",
+    "wishlist": "Liste d'envies",
+    "saved_items": "Articles enregistrés",
+    "nothing_saved_yet": "Rien d'enregistré pour le moment."
+  }
+}
+
