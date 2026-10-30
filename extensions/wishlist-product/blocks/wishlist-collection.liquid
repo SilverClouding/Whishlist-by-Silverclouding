@@ -155,7 +155,6 @@
           customerAuthenticated = false;
           return persistLocalFallback(operation, item);
         }
-        const data = await res.json();
         if (!Array.isArray(data.items)) {
           customerAuthenticated = false;
           return persistLocalFallback(operation, item);
