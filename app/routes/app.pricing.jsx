@@ -5,6 +5,7 @@ import { env } from "node:process";
 import { authenticate } from "../shopify.server";
 import { PLANS } from "../plans";
 import { currentUsage } from "../db.wishlist.server";
+import { resolveLocale, getAdminTranslations, getLocalizedPlans } from "../i18n.server";
 import { PLAN_RANK } from "../plan-entitlements";
 import {
   getPlanEntitlement,
@@ -24,6 +25,10 @@ export const loader = async ({ request }) => {
   const { session, admin } = await authenticate.admin(request);
   const shop = session.shop;
   const month = monthKey();
+
+  const locale = resolveLocale(request, session);
+  const t = getAdminTranslations(locale);
+  const localizedPlans = getLocalizedPlans(locale);
 
   const [entitlement, used, addonSaves] = await Promise.all([
     getPlanEntitlement(shop, month, admin),
@@ -45,7 +50,9 @@ export const loader = async ({ request }) => {
   const allocationAdded = url.searchParams.get("allocationAdded") === "1";
 
   return {
-    plans: PLANS,
+    locale,
+    t: t.pricing,
+    plans: localizedPlans,
     activePlanId,
     scheduledPlanId: entitlement.scheduledPlanId,
     effectiveMonth: entitlement.effectiveMonth,
@@ -223,6 +230,8 @@ export const action = async ({ request }) => {
 
 export default function PricingPage() {
   const {
+    locale,
+    t,
     plans,
     activePlanId,
     scheduledPlanId,
@@ -278,14 +287,14 @@ export default function PricingPage() {
     <s-page heading="Pricing">
 
       {/* ── Usage summary ── */}
-      <s-section heading="Current usage">
+      <s-section heading={t?.current_usage || "Current usage"}>
         <s-grid
           gridTemplateColumns="@container (inline-size <= 400px) 1fr, 1fr auto 1fr auto 1fr"
           gap="small"
         >
           <s-box padding="base">
             <s-grid gap="small-300">
-              <s-text color="subdued">Plan</s-text>
+              <s-text color="subdued">{t?.plan_label || "Plan"}</s-text>
               <s-stack direction="inline" gap="small-200" alignItems="center">
                 <s-heading>{activePlan?.name ?? "Free"}</s-heading>
                 {activePlanId !== "free" && <s-badge tone="success">Paid</s-badge>}
@@ -295,16 +304,16 @@ export default function PricingPage() {
           <s-divider direction="block" />
           <s-box padding="base">
             <s-grid gap="small-300">
-              <s-text color="subdued">Saves used</s-text>
+              <s-text color="subdued">{t?.saves_used || "Saves used"}</s-text>
               <s-heading>{usage.used}</s-heading>
             </s-grid>
           </s-box>
           <s-divider direction="block" />
           <s-box padding="base">
             <s-grid gap="small-300">
-              <s-text color="subdued">Remaining</s-text>
+              <s-text color="subdued">{t?.saves_remaining || "Remaining"}</s-text>
               <s-stack direction="inline" gap="small-200" alignItems="center">
-                <s-heading>{usage.remaining === null ? "Unlimited" : usage.remaining}</s-heading>
+                <s-heading>{usage.remaining === null ? (t?.unlimited || "Unlimited") : usage.remaining}</s-heading>
                 {addonSaves > 0 && (
                   <s-badge tone="info">+{addonSaves.toLocaleString()} addon</s-badge>
                 )}
@@ -312,8 +321,8 @@ export default function PricingPage() {
             </s-grid>
             <s-text color="subdued">
               {Number.isFinite(usage.limit)
-                ? `${usage.limit.toLocaleString()} total saves this month`
-                : "Unlimited saves this month"}
+                ? (t?.total_saves_this_month || "{limit} total saves this month").replace("{limit}", usage.limit.toLocaleString())
+                : (t?.unlimited_saves_month || "Unlimited saves this month")}
             </s-text>
           </s-box>
         </s-grid>
@@ -379,13 +388,13 @@ export default function PricingPage() {
 
       {/* ── Addon card (Growth plan only) ── */}
       {activePlanId === "growth" && (
-        <s-section heading="Need more saves this month?">
+        <s-section heading={t?.need_more_saves || "Need more saves this month?"}>
           <s-box border="base" borderRadius="base" padding="base">
             <s-grid gridTemplateColumns="1fr auto" gap="base" alignItems="center">
               <s-grid gap="small-200">
                 <s-stack direction="inline" gap="small-200" alignItems="center">
                   <s-heading>+{addon.saves.toLocaleString()} saves</s-heading>
-                  <s-badge tone="info">One-time</s-badge>
+                  <s-badge tone="info">{t?.one_time_badge || "One-time"}</s-badge>
                 </s-stack>
                 <s-paragraph>
                   Buy an extra {addon.saves.toLocaleString()} saves for this calendar month only.
@@ -403,7 +412,7 @@ export default function PricingPage() {
                   variant="primary"
                   loading={isSubmitting}
                 >
-                  Buy +{addon.saves.toLocaleString()} saves
+                  {t?.buy_addon_btn ? t.buy_addon_btn.replace("{saves}", addon.saves.toLocaleString()) : `Buy +${addon.saves.toLocaleString()} saves`}
                 </s-button>
               </fetcher.Form>
             </s-grid>
@@ -417,159 +426,261 @@ export default function PricingPage() {
         </s-section>
       )}
 
-      {/* ── Plan cards ── */}
-      <s-section heading="Choose a plan">
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap: "16px",
-          alignItems: "stretch",
-        }}>
-          {plans.map((plan) => {
+      {/* ── Option 3: Featured Spotlight + Compact Plan Selector ── */}
+      <s-section heading={t?.choose_plan || "Choose a plan"}>
+        {(() => {
+          const starterPlan = plans.find((p) => p.id === "starter") || plans[1];
+          const otherPlans = plans.filter((p) => p.id !== (starterPlan?.id || "starter"));
+          const activePlanPrice = activePlan?.price ?? 0;
+
+          const renderButton = (plan, fullWidth = false) => {
             const isActive = plan.id === activePlanId;
-            const activePlanPrice = activePlan?.price ?? 0;
             const isDowngrade = plan.price < activePlanPrice && !isActive;
             const isUpgrade = plan.price > activePlanPrice && !isActive;
 
-            return (
-              <div
-                key={plan.id}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  border: isActive ? "2px solid #008060" : "1px solid #e1e3e5",
-                  borderRadius: "12px",
-                  padding: "20px",
-                  background: isActive ? "#f6fef9" : "#ffffff",
-                  gap: "16px",
-                }}
-              >
-                {/* Header */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                    <s-heading>{plan.name}</s-heading>
-                    {isActive && <s-badge tone="success">Current plan</s-badge>}
-                    {isActive && purchaseCount > 1 && (
-                      <s-badge tone="info">{purchaseCount} allocations</s-badge>
-                    )}
-                    {plan.trialDays > 0 && !isActive && (
-                      <s-badge tone="info">{plan.trialDays}-day free trial</s-badge>
-                    )}
-                  </div>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
-                    {plan.price === 0 ? (
-                      <s-text>Free forever</s-text>
-                    ) : (
-                      <>
-                        <span style={{ fontSize: "24px", fontWeight: "700", color: "#202223" }}>${plan.price}</span>
-                        <s-text color="subdued">/ month</s-text>
-                      </>
-                    )}
-                  </div>
-                  <s-text color="subdued">
-                    {plan.id === activePlanId && Number.isFinite(usage.planLimit)
-                      ? `${usage.planLimit.toLocaleString()} saves active this month`
-                      : plan.limit === Infinity
-                      ? "Unlimited saves / month"
-                      : `${plan.limit.toLocaleString()} saves / month`}
-                  </s-text>
-                </div>
-
-                {/* Divider */}
-                <div style={{ height: "1px", background: "#e1e3e5" }} />
-
-                {/* Features — flex:1 pushes button to bottom */}
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "10px" }}>
-                  {plan.features.map((f) => (
-                    <div key={f} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span style={{ color: "#008060", fontSize: "16px" }}>✓</span>
-                      <s-text>{f}</s-text>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Divider */}
-                <div style={{ height: "1px", background: "#e1e3e5" }} />
-
-                {/* Button — always at bottom */}
-                {isActive && plan.id === "free" ? (
-                  <s-button variant="secondary" disabled>
-                    Current plan
-                  </s-button>
-                ) : isActive && scheduledPlanId === "free" ? (
-                  <s-button variant="secondary" disabled>
-                    Cancellation scheduled
-                  </s-button>
-                ) : isActive ? (
-                  <fetcher.Form
-                    method="post"
-                    style={{ display: "grid", gridTemplateColumns: "1fr" }}
+            if (isActive && plan.id === "free") {
+              return (
+                <s-button variant="secondary" disabled inlineSize={fullWidth ? "fill" : "auto"}>
+                  {t?.current_plan || "Current plan"}
+                </s-button>
+              );
+            }
+            if (isActive && scheduledPlanId === "free") {
+              return (
+                <s-button variant="secondary" disabled inlineSize={fullWidth ? "fill" : "auto"}>
+                  {t?.cancellation_scheduled || "Cancellation scheduled"}
+                </s-button>
+              );
+            }
+            if (isActive) {
+              return (
+                <fetcher.Form method="post" style={{ display: "inline-block", width: fullWidth ? "100%" : "auto" }}>
+                  <input type="hidden" name="intent" value="cancel-plan" />
+                  <s-button
+                    type="submit"
+                    variant="primary"
+                    tone="critical"
+                    disabled={isSubmitting}
+                    inlineSize={fullWidth ? "fill" : "auto"}
                   >
-                    <input type="hidden" name="intent" value="cancel-plan" />
-                    <s-button
-                      type="submit"
-                      variant="primary"
-                      tone="critical"
-                      disabled={isSubmitting}
-                    >
-                      Cancel plan
-                    </s-button>
-                  </fetcher.Form>
-                ) : isUpgrade ? (
-                  <fetcher.Form method="post">
-                    <input type="hidden" name="intent" value="upgrade" />
-                    <input type="hidden" name="planId" value={plan.id} />
-                    <s-button
-                      type="submit"
-                      variant="primary"
-                      loading={isSubmitting}
-                      inlineSize="fill"
-                    >
-                      Upgrade to {plan.name}
-                    </s-button>
-                  </fetcher.Form>
-                ) : plan.id === scheduledPlanId ? (
-                  <s-button variant="secondary" disabled>
-                    Scheduled for {effectiveMonth}
+                    {t?.cancel_plan_btn || "Cancel plan"}
                   </s-button>
-                ) : isDowngrade ? (
-                  <fetcher.Form method="post">
-                    <input type="hidden" name="intent" value="downgrade" />
-                    <input type="hidden" name="planId" value={plan.id} />
-                    <s-button
-                      type="submit"
-                      variant="tertiary"
-                      tone="critical"
-                      disabled={isSubmitting}
-                      inlineSize="fill"
+                </fetcher.Form>
+              );
+            }
+            if (isUpgrade) {
+              return (
+                <fetcher.Form method="post" style={{ display: "inline-block", width: fullWidth ? "100%" : "auto" }}>
+                  <input type="hidden" name="intent" value="upgrade" />
+                  <input type="hidden" name="planId" value={plan.id} />
+                  <s-button
+                    type="submit"
+                    variant="primary"
+                    loading={isSubmitting}
+                    inlineSize={fullWidth ? "fill" : "auto"}
+                  >
+                    {plan.trialDays > 0 ? (t?.start_trial_btn ? t.start_trial_btn.replace("{days}", String(plan.trialDays)) : `Start ${plan.trialDays}-day free trial`) : (t?.upgrade_btn ? t.upgrade_btn.replace("{name}", plan.name) : `Upgrade to ${plan.name}`)}
+                  </s-button>
+                </fetcher.Form>
+              );
+            }
+            if (plan.id === scheduledPlanId) {
+              return (
+                <s-button variant="secondary" disabled inlineSize={fullWidth ? "fill" : "auto"}>
+                  {(t?.scheduled_for || "Scheduled for {month}").replace("{month}", effectiveMonth)}
+                </s-button>
+              );
+            }
+            if (isDowngrade) {
+              return (
+                <fetcher.Form method="post" style={{ display: "inline-block", width: fullWidth ? "100%" : "auto" }}>
+                  <input type="hidden" name="intent" value="downgrade" />
+                  <input type="hidden" name="planId" value={plan.id} />
+                  <s-button
+                    type="submit"
+                    variant="tertiary"
+                    tone="critical"
+                    disabled={isSubmitting}
+                    inlineSize={fullWidth ? "fill" : "auto"}
+                  >
+                    {(t?.downgrade_btn || "Downgrade to {name}").replace("{name}", plan.name)}
+                  </s-button>
+                </fetcher.Form>
+              );
+            }
+            return null;
+          };
+
+          const isStarterActive = starterPlan?.id === activePlanId;
+
+          return (
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gap: "24px",
+              alignItems: "stretch",
+            }}>
+
+              {/* ── Left Column: Featured Spotlight Card ── */}
+              {starterPlan && (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    border: "2px solid #008060",
+                    borderRadius: "14px",
+                    padding: "24px",
+                    background: "#fbfefc",
+                    boxShadow: "0 4px 16px rgba(0, 128, 96, 0.08)",
+                    gap: "20px",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                    {/* Top Tag & Status */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
+                      <s-badge tone="success">{t?.recommended_for_growing || "Recommended for growing stores"}</s-badge>
+                      {isStarterActive && <s-badge tone="success">{t?.current_plan || "Current plan"}</s-badge>}
+                      {starterPlan.trialDays > 0 && !isStarterActive && (
+                        <s-badge tone="info">{(t?.free_trial_tag || "{days}-day free trial").replace("{days}", String(starterPlan.trialDays))}</s-badge>
+                      )}
+                    </div>
+
+                    {/* Plan Heading & Pricing */}
+                    <div>
+                      <div style={{ fontSize: "24px", fontWeight: "700", color: "#202223" }}>
+                        {starterPlan.name} Plan
+                      </div>
+                      <div style={{ fontSize: "13px", color: "#6d7175", marginTop: "4px" }}>
+                        {starterPlan.description}
+                      </div>
+                      <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginTop: "12px" }}>
+                        <span style={{ fontSize: "36px", fontWeight: "800", color: "#008060" }}>
+                          ${starterPlan.price}
+                        </span>
+                        <span style={{ fontSize: "14px", color: "#6d7175" }}>/ month</span>
+                      </div>
+                    </div>
+
+                    {/* Capacity Callout Banner */}
+                    <div
+                      style={{
+                        background: "#ffffff",
+                        border: "1px solid #d2e8dd",
+                        borderRadius: "10px",
+                        padding: "14px 18px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
                     >
-                      Downgrade to {plan.name}
-                    </s-button>
-                  </fetcher.Form>
-                ) : null}
+                      <span style={{ fontSize: "14px", fontWeight: "600", color: "#202223" }}>
+                        {t?.monthly_capacity || "Monthly wishlist capacity"}
+                      </span>
+                      <span style={{ fontSize: "16px", fontWeight: "700", color: "#008060" }}>
+                        {starterPlan.limit.toLocaleString()} saves
+                      </span>
+                    </div>
+
+                    {/* Features List */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                      <div style={{ fontSize: "13px", fontWeight: "600", color: "#202223" }}>
+                        {t?.key_benefits || "Key plan benefits:"}
+                      </div>
+                      {starterPlan.features.map((feature) => (
+                        <div key={feature} style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                          <span style={{ color: "#008060", fontWeight: "700", fontSize: "14px", lineHeight: "1.4" }}>•</span>
+                          <span style={{ fontSize: "13px", color: "#202223", lineHeight: "1.4" }}>
+                            {feature}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Spotlight Action Button */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", paddingTop: "12px", borderTop: "1px solid #e1e3e5" }}>
+                    {renderButton(starterPlan, true)}
+                    <div style={{ fontSize: "12px", color: "#6d7175", textAlign: "center" }}>
+                      {starterPlan.trialDays > 0 && !isStarterActive
+                        ? (t?.no_charge_today || "No charge today · Cancel anytime during trial")
+                        : (t?.billed_securely || "Billed securely through Shopify")}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Right Column: Compact Stack for Other Plans ── */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "14px", justifyContent: "space-between" }}>
+               
+
+                {otherPlans.map((plan) => {
+                  const isActive = plan.id === activePlanId;
+                  return (
+                    <div
+                      key={plan.id}
+                      style={{
+                        border: isActive ? "2px solid #008060" : "1px solid #e1e3e5",
+                        borderRadius: "12px",
+                        padding: "16px 20px",
+                        background: isActive ? "#f6fef9" : "#ffffff",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "12px",
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "8px" }}>
+                        <div>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                            <span style={{ fontSize: "16px", fontWeight: "700", color: "#202223" }}>
+                              {plan.name}
+                            </span>
+                            {isActive && <s-badge tone="success">{t?.current_plan_badge || "Current plan"}</s-badge>}
+                            {plan.trialDays > 0 && !isActive && (
+                              <s-badge tone="info">{(t?.free_trial_tag || "{days}-day trial").replace("{days}", String(plan.trialDays))}</s-badge>
+                            )}
+                          </div>
+                          <div style={{ fontSize: "13px", color: "#6d7175", marginTop: "3px" }}>
+                            {plan.limit === Infinity
+                              ? "Unlimited saves / month"
+                              : `${plan.limit.toLocaleString()} saves / month`}
+                          </div>
+                        </div>
+
+                        <div style={{ textAlign: "right" }}>
+                          <span style={{ fontSize: "20px", fontWeight: "700", color: "#202223" }}>
+                            {plan.price === 0 ? "Free" : `${plan.price}`}
+                          </span>
+                          {plan.price > 0 && (
+                            <span style={{ fontSize: "12px", color: "#6d7175" }}> /mo</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px", borderTop: "1px solid #f1f2f3", paddingTop: "10px" }}>
+                        <div style={{ fontSize: "12px", color: "#6d7175", maxWidth: "60%" }}>
+                          {plan.description}
+                        </div>
+                        <div>
+                          {renderButton(plan, false)}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
+
+            </div>
+          );
+        })()}
       </s-section>
 
       {/* ── Billing notes ── */}
-      <s-section heading="Billing notes">
+      <s-section heading={t?.billing_notes_heading || "Billing notes"}>
         <s-grid gap="small-200">
-          <s-paragraph>
-            Paid plans are billed through Shopify. Canceling stops renewal; your current
-            calendar-month plan limit stays active through month-end, then the Free limit applies.
-          </s-paragraph>
-          <s-paragraph>
-            Growth and Unlimited plans include a {plans.find((p) => p.id === "growth")?.trialDays}-day
-            free trial. You will not be charged until the trial ends.
-          </s-paragraph>
-          <s-paragraph>
-            <strong>When the monthly save limit is reached</strong>, new wishlist adds are
-            declined for the rest of that calendar month. Existing saved items are unaffected —
-            shoppers can still view and remove their wishlist. The limit resets on the 1st of
-            the next month. If you expect high volume mid-month, upgrade before the limit is hit.
-          </s-paragraph>
+          <s-paragraph>{t?.billing_note_1 || "Paid plans are billed through Shopify. Canceling stops renewal; your current calendar-month plan limit stays active through month-end, then the Free limit applies."}</s-paragraph>
+          <s-paragraph>{t?.billing_note_2 || "Starter, Growth, and Unlimited plans include a 7-day free trial. You will not be charged until the trial ends."}</s-paragraph>
+          <s-paragraph>{t?.billing_note_3 || "When the monthly save limit is reached, new wishlist adds are declined for the rest of that calendar month. Existing saved items are unaffected — shoppers can still view and remove their wishlist."}</s-paragraph>
           <s-paragraph>
             A lower paid plan or Free cancellation takes effect at the end of your current Shopify
             subscription period, shown above. This may be mid-month. Until then, the current plan

@@ -4,8 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:dev.sqlite"
 }
 
 model Session {
@@ -77,6 +77,8 @@ model WishlistSettings {
   toastBg         String   @default("#1a1a1a")
   toastColor      String   @default("#ffffff")
   toastPosition   String   @default("top-left")
+  // Custom language translations JSON: { "es": { "add_to_cart": "Añadir", ... }, ... }
+  translations    String?  @default("{}")
   updatedAt     DateTime @updatedAt
 }
 

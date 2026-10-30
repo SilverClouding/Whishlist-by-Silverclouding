@@ -130,7 +130,12 @@
       return response.ok ? response.json() : {};
     })
     .then((data) => {
+      window.silvercloudingSettings = data.settings || {};
+      window.silvercloudingLimitReached = Boolean(data.limitReached || (data.usage && data.usage.remaining === 0));
       applyToastSettings(data.settings);
+      document.dispatchEvent(
+        new CustomEvent('silverclouding:settings-loaded', { detail: data.settings || {} })
+      );
     })
     .catch(() => {})
     .finally(() => {

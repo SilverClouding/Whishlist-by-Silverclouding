@@ -1,6 +1,18 @@
+import { useLoaderData } from "react-router";
+import { authenticate } from "../shopify.server";
+import { resolveLocale, getAdminTranslations } from "../i18n.server";
+
+export const loader = async ({ request }) => {
+  const { session } = await authenticate.admin(request);
+  const locale = resolveLocale(request, session);
+  const t = getAdminTranslations(locale).howToUse;
+  return { t };
+};
+
 export default function HowToUsePage() {
+  const { t } = useLoaderData();
   return (
-    <s-page heading="How to use Silverclouding Wishlist">
+    <s-page heading={t?.page_heading || "How to use Silverclouding Wishlist"}>
 
       {/* ── Method 1: App Blocks ── */}
       <s-section heading="Method 1 — App blocks (recommended)">

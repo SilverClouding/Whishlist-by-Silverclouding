@@ -1,0 +1,30 @@
+{
+  "wishlist": {
+    "heading": "La mia lista dei desideri",
+    "shared_wishlist_heading": "Lista dei desideri condivisa",
+    "empty_message": "Non hai ancora salvato alcun prodotto.",
+    "add_to_wishlist": "Aggiungi alla lista dei desideri",
+    "saved": "Salvato",
+    "remove": "Rimuovi",
+    "remove_from_wishlist": "Rimuovi dalla lista dei desideri",
+    "added_to_wishlist": "Aggiunto alla lista dei desideri",
+    "removed_from_wishlist": "Rimosso dalla lista dei desideri",
+    "wishlist_cleared": "Lista dei desideri svuotata",
+    "limit_reached": "Limite mensile della lista dei desideri raggiunto.",
+    "temporarily_unavailable": "La lista dei desideri è temporaneamente non disponibile. Riprova più tardi.",
+    "sold_out": "Esaurito",
+    "add_to_cart": "Aggiungi al carrello",
+    "added_to_cart": "Aggiunto al carrello",
+    "add_to_cart_error": "Impossibile aggiungere questo articolo al carrello. Riprova.",
+    "share_wishlist": "Condividi lista dei desideri",
+    "share_copied": "Link copiato!",
+    "copy_share_link": "Copia questo link per condividere la tua lista dei desideri:",
+    "clear_all": "Cancella tutto",
+    "product": "Prodotto",
+    "view_wishlist": "Visualizza lista dei desideri",
+    "wishlist": "Lista dei desideri",
+    "saved_items": "Articoli salvati",
+    "nothing_saved_yet": "Ancora nessun articolo salvato."
+  }
+}
+

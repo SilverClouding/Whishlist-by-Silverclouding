@@ -3,8 +3,10 @@
 {% assign btn_active_color = block.settings.active_color | default: '#1a1a1a' %}
 {% assign icon_color = block.settings.icon_color | default: '#1a1a1a' %}
 {% assign show_label = block.settings.show_label %}
-{% assign label_add = block.settings.label_add | default: 'Add to wishlist' %}
-{% assign label_saved = block.settings.label_saved | default: 'Saved' %}
+{% assign default_label_add = 'wishlist.add_to_wishlist' | t %}
+{% assign default_label_saved = 'wishlist.saved' | t %}
+{% assign label_add = block.settings.label_add | default: default_label_add %}
+{% assign label_saved = block.settings.label_saved | default: default_label_saved %}
 {% assign custom_svg = block.settings.custom_svg %}
 
 <div
@@ -92,8 +94,33 @@
     const getVariantInput = () => productScope.querySelector('form[action*="/cart/add"] [name="id"]') || productScope.querySelector('[name="id"]');
     const getVariantId = () => String(getVariantInput()?.value || container.dataset.productVariantId || '').trim();
     const itemKey = (item) => `${String(item.id)}::${String(item.variantId || '')}`;
-    const labelAdd = container.dataset.labelAdd || {{ 'wishlist.add_to_wishlist' | t | json }};
-    const labelSaved = container.dataset.labelSaved || {{ 'wishlist.saved' | t | json }};
+    const currentLocale = {{ request.locale.iso_code | downcase | json }};
+    let labelAdd = container.dataset.labelAdd || {{ 'wishlist.add_to_wishlist' | t | json }};
+    let labelSaved = container.dataset.labelSaved || {{ 'wishlist.saved' | t | json }};
+    let toastAdded = {{ 'wishlist.added_to_wishlist' | t | json }};
+    let toastRemoved = {{ 'wishlist.removed_from_wishlist' | t | json }};
+
+    const applyDynamicLabels = (appSettings) => {
+      if (!appSettings?.translations) return;
+      try {
+        const trans = typeof appSettings.translations === 'string'
+          ? JSON.parse(appSettings.translations)
+          : appSettings.translations;
+        const loc = trans[currentLocale] || trans[currentLocale.split('-')[0]] || {};
+        if (loc.add_to_wishlist) labelAdd = loc.add_to_wishlist;
+        if (loc.saved) labelSaved = loc.saved;
+        if (loc.added_to_wishlist) toastAdded = loc.added_to_wishlist;
+        if (loc.removed_from_wishlist) toastRemoved = loc.removed_from_wishlist;
+        refresh();
+      } catch {}
+    };
+
+    if (window.silvercloudingSettings) {
+      applyDynamicLabels(window.silvercloudingSettings);
+    }
+    document.addEventListener('silverclouding:settings-loaded', (e) => {
+      applyDynamicLabels(e.detail);
+    });
 
     let requestInFlight = false;
     let customerAuthenticated = false;
@@ -163,7 +190,7 @@
       saveWishlist(items);
 
       window.silvercloudingWishlistToast?.({
-        message: operation === 'add' ? {{ 'wishlist.added_to_wishlist' | t | json }} : {{ 'wishlist.removed_from_wishlist' | t | json }},
+        message: operation === 'add' ? toastAdded : toastRemoved,
         image: item.productImage || '',
         title: item.productTitle || ''
       });
@@ -185,15 +212,27 @@
         });
 
         const data = await res.json().catch(() => ({}));
-        if (res.ok && data.tracked) return data;
+        if (res.status === 429 || data?.limitReached || data?.error?.toLowerCase().includes('limit')) {
+          window.silvercloudingLimitReached = true;
+          return { blocked: true };
+        }
+
+        if (res.ok && data?.tracked) return data;
       } catch {}
 
-      return null;
+      return { blocked: true };
     };
 
     const sync = async (operation, item) => {
+      if (operation === 'add' && window.silvercloudingLimitReached) {
+        return false;
+      }
+
       if (!customerAuthenticated) {
-        await trackGuest(operation, item);
+        const trackResult = await trackGuest(operation, item);
+        if (operation === 'add' && (!trackResult || trackResult.blocked || !trackResult.tracked)) {
+          return false;
+        }
         return persistLocalFallback(operation, item);
       }
 
@@ -208,17 +247,16 @@
         })
       });
 
-      if (res.status === 429) {
-        const data = await res.json().catch(() => ({}));
+      const data = await res.json().catch(() => ({}));
 
+      if (res.status === 429 || data?.limitReached || data?.error?.toLowerCase().includes('limit')) {
+        window.silvercloudingLimitReached = true;
         if (operation === 'remove' || operation === 'clear') {
-          window.silvercloudingWishlistToast?.({ message: {{ 'wishlist.removed_from_wishlist' | t | json }} });
+          window.silvercloudingWishlistToast?.({ message: toastRemoved });
           return getWishlist();
         }
 
-        window.silvercloudingWishlistToast?.({ message: data.error || {{ 'wishlist.limit_reached' | t | json }} });
-
-        return getWishlist();
+        return false;
       }
 
       if (!res.ok) {
@@ -247,7 +285,7 @@
       saveWishlist(synced);
 
       window.silvercloudingWishlistToast?.({
-        message: operation === 'add' ? {{ 'wishlist.added_to_wishlist' | t | json }} : {{ 'wishlist.removed_from_wishlist' | t | json }},
+        message: operation === 'add' ? toastAdded : toastRemoved,
         image: item.productImage || '',
         title: item.productTitle || ''
       });
@@ -345,7 +383,7 @@
           productPrice
         });
 
-        if (result) updateView(!saved);
+        if (result !== false && result !== null) updateView(!saved);
       } catch (error) {
         console.error('Wishlist request failed', error);
         window.silvercloudingWishlistToast?.({ message: {{ 'wishlist.temporarily_unavailable' | t | json }} });

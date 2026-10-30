@@ -62,6 +62,7 @@ const defaultSettings = {
   toastBg:        "#1a1a1a",
   toastColor:     "#ffffff",
   toastPosition:  "top-left",
+  translations:   "{}",
 };
 
 // ─── ?api= routes ─────────────────────────────────────────────────────────────
@@ -97,8 +98,19 @@ const handleApiGet = async (api, url, session, customerId) => {
       return json({ month, adds: totals.adds, removes: totals.removes, history, usage: usageFor(used, limit) });
     }
     case "settings": {
-      const settings = await prisma.wishlistSettings.findUnique({ where: { shop } });
-      return json({ settings: settings || defaultSettings });
+      const [settings, entitlement, used, addonSaves] = await Promise.all([
+        prisma.wishlistSettings.findUnique({ where: { shop } }),
+        getPlanEntitlement(shop, month),
+        currentUsage(shop, month),
+        getMonthlyAddonSaves(shop, month),
+      ]);
+      const limit = effectiveLimit(entitlement.planLimit, addonSaves);
+      const limitReached = Number.isFinite(limit) && used >= limit;
+      return json({
+        settings: settings || defaultSettings,
+        limitReached,
+        usage: usageFor(used, limit),
+      });
     }
     case "usage": {
       const [used, entitlement, addonSaves] = await Promise.all([
@@ -176,10 +188,12 @@ export const action = async ({ request }) => {
 
     // ── clear ─────────────────────────────────────────────────────────────────
     if (operation === "clear") {
+      const clientCount = Math.max(0, parseInt(payload?.count, 10) || 0);
       let removedCount = 0;
       if (customerId) removedCount = await clearCustomerWishlist(shop, customerId);
-      if (removedCount > 0) {
-        await recordAnalytics(shop, { removes: removedCount }).catch((e) =>
+      const effectiveRemovals = Math.max(removedCount, clientCount);
+      if (effectiveRemovals > 0) {
+        await recordAnalytics(shop, { removes: effectiveRemovals }).catch((e) =>
           console.error("Analytics update failed on clear", e));
       }
       const used = await currentUsage(shop, month);
@@ -207,6 +221,7 @@ export const action = async ({ request }) => {
       if (Number.isFinite(limit) && used >= limit) {
         return json({
           error: "This store has reached its monthly wishlist limit.",
+          limitReached: true,
           usage: { used, limit, remaining: 0 },
         }, { status: 429 });
       }

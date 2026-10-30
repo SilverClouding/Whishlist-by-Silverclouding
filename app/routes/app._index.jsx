@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLoaderData } from "react-router";
 import { authenticate } from "../shopify.server";
 import { currentUsage } from "../db.wishlist.server";
+import { resolveLocale, getAdminTranslations, getLocalizedPlans } from "../i18n.server";
 import { getPlanEntitlement, getMonthlyAddonSaves } from "../billing.server";
 import { getPlan } from "../plans";
 import { checkEmbedEnabled } from "../embed.server";
@@ -11,6 +12,10 @@ export const loader = async ({ request }) => {
   const shop = session.shop;
   const month = new Date().toISOString().slice(0, 7);
 
+  const locale = resolveLocale(request, session);
+  const t = getAdminTranslations(locale);
+  const localizedPlans = getLocalizedPlans(locale);
+
   const [entitlement, used, embed, addonSaves] = await Promise.all([
     getPlanEntitlement(shop, month, admin),
     currentUsage(shop, month),
@@ -19,12 +24,14 @@ export const loader = async ({ request }) => {
   ]);
 
   const planId = entitlement.planId;
-  const plan = getPlan(planId);
+  const plan = localizedPlans.find((p) => p.id === planId) || getPlan(planId);
   const limit = entitlement.planLimit;
   const effLimit = Number.isFinite(limit) ? limit + addonSaves : Infinity;
 
   return {
     shop,
+    locale,
+    t: t.dashboard,
     embed, // { enabled: bool|null, themeName: string|null, themeId: string|null }
     stats: {
       used,
@@ -83,7 +90,7 @@ const FAQ_ITEMS = [
 ];
 
 export default function WishlistDashboard() {
-  const { shop, blocks, stats, embed } = useLoaderData();
+  const { shop, blocks, stats, embed, t, faqItems } = useLoaderData();
   const [liveStats, setLiveStats] = useState(stats);
   const [openFaq, setOpenFaq] = useState(null);
 
@@ -121,21 +128,20 @@ export default function WishlistDashboard() {
       <s-section>
         <s-grid gridTemplateColumns="1fr auto" gap="base" alignItems="center">
           <s-grid gap="small-300">
-            <s-heading>Turn wishlisted products into repeat sales</s-heading>
+            <s-heading>{t?.hero_heading || "Turn wishlisted products into repeat sales"}</s-heading>
             <s-paragraph>
-              Let shoppers save products, share their wishlist, and come back to buy.
-              Works on any Shopify theme — no coding needed.
+              {t?.hero_paragraph || "Let shoppers save products, share their wishlist, and come back to buy. Works on any Shopify theme — no coding needed."}
             </s-paragraph>
             <s-stack direction="inline" gap="small-200">
-              <s-button href="/app/how-to-use" variant="primary">Get started</s-button>
-              <s-button href="/app/pricing" variant="secondary">View plans</s-button>
+              <s-button href="/app/how-to-use" variant="primary">{t?.get_started || "Get started"}</s-button>
+              <s-button href="/app/pricing" variant="secondary">{t?.view_plans || "View plans"}</s-button>
             </s-stack>
           </s-grid>
           {liveStats.planId === "free" && (
             <s-box border="base" borderRadius="base" padding="base">
               <s-grid gap="small-200">
                 <s-badge tone="info">Free trial</s-badge>
-                <s-paragraph>Try Growth or Unlimited free for 7 days. No card required.</s-paragraph>
+                <s-paragraph>Try Starter, Growth, or Unlimited free for 7 days. No card required.</s-paragraph>
                 <s-button href="/app/pricing" variant="primary">Start free trial</s-button>
               </s-grid>
             </s-box>
@@ -144,14 +150,14 @@ export default function WishlistDashboard() {
       </s-section>
 
       {/* ── Usage metrics ── */}
-      <s-section heading="This month">
+      <s-section heading={t?.this_month || "This month"}>
         <s-grid
           gridTemplateColumns="@container (inline-size <= 400px) 1fr, 1fr auto 1fr auto 1fr"
           gap="small"
         >
           <s-box padding="base">
             <s-grid gap="small-300">
-              <s-text color="subdued">Saves used</s-text>
+              <s-text color="subdued">{t?.saves_used || "Saves used"}</s-text>
               <s-stack direction="inline" gap="small-200" alignItems="center">
                 <s-heading>{liveStats.used}</s-heading>
                 {liveStats.limit && Number.isFinite(liveStats.limit) && (
@@ -165,14 +171,14 @@ export default function WishlistDashboard() {
           <s-divider direction="block" />
           <s-box padding="base">
             <s-grid gap="small-300">
-              <s-text color="subdued">Saves remaining</s-text>
+              <s-text color="subdued">{t?.saves_remaining || "Saves remaining"}</s-text>
               <s-heading>{liveStats.remaining === null ? "Unlimited" : liveStats.remaining}</s-heading>
             </s-grid>
           </s-box>
           <s-divider direction="block" />
           <s-box padding="base">
             <s-grid gap="small-300">
-              <s-text color="subdued">Active plan</s-text>
+              <s-text color="subdued">{t?.active_plan || "Active plan"}</s-text>
               <s-stack direction="inline" gap="small-200" alignItems="center">
                 <s-heading>{liveStats.planName ?? "Free"}</s-heading>
                 {liveStats.planId !== "free" && <s-badge tone="success">Paid</s-badge>}
@@ -185,9 +191,9 @@ export default function WishlistDashboard() {
         </s-grid>
 
         {liveStats.planId === "free" && liveStats.remaining !== null && liveStats.remaining < 20 && liveStats.remaining > 0 && (
-          <s-banner tone="warning" heading="Running low">
-            Only {liveStats.remaining} saves left this month.{" "}
-            <s-link href="/app/pricing">Upgrade to avoid hitting the limit.</s-link>
+          <s-banner tone="warning" heading={t?.running_low || "Running low"}>
+            {(t?.running_low_msg || "Only {remaining} saves left this month.").replace("{remaining}", String(liveStats.remaining))}{" "}
+            <s-link href="/app/pricing">{t?.upgrade_avoid_limit || "Upgrade to avoid hitting the limit."}</s-link>
           </s-banner>
         )}
         {liveStats.planId !== "free" && Number.isFinite(liveStats.limit) && liveStats.remaining !== null && liveStats.remaining < 500 && liveStats.remaining > 0 && (
@@ -198,29 +204,26 @@ export default function WishlistDashboard() {
           </s-banner>
         )}
         {Number.isFinite(liveStats.limit) && liveStats.remaining === 0 && (
-          <s-banner tone="critical" heading="Monthly limit reached">
-            Shoppers can&apos;t add new wishlist items until next month.{" "}
-            <s-link href="/app/pricing">Upgrade your plan</s-link> to restore capacity immediately.
+          <s-banner tone="critical" heading={t?.limit_reached_heading || "Monthly limit reached"}>
+            {t?.limit_reached_msg || "Shoppers can't add new wishlist items until next month."}{" "}
+            <s-link href="/app/pricing">{t?.upgrade_restore_capacity || "Upgrade your plan to restore capacity immediately."}</s-link>
           </s-banner>
         )}
       </s-section>
 
       {/* ── App embed status ── */}
-      <s-section heading="App embed status">
+      <s-section heading={t?.app_embed_status || "App embed status"}>
         {embed.enabled === false && (
-          <s-banner tone="critical" heading="App embed is not enabled">
-            The wishlist button and CSS will not appear on your storefront until you enable
-            the app embed in Theme Editor.{" "}
+          <s-banner tone="critical" heading={t?.embed_not_enabled_heading || "App embed is not enabled"}>
+            {t?.embed_not_enabled_msg || "The wishlist button and CSS will not appear on your storefront until you enable the app embed in Theme Editor."}{" "}
             <s-link href={`https://${shop}/admin/themes/current/editor?context=apps`} target="_blank">
-              Enable it now
+              {t?.enable_now || "Enable it now"}
             </s-link>
           </s-banner>
         )}
         {embed.enabled === true && (
-          <s-banner tone="success" heading="App embed is enabled">
-            The Silverclouding Wishlist embed is active on{" "}
-            <strong>{embed.themeName ?? "your theme"}</strong>.
-            Shoppers can see the wishlist buttons on your storefront.
+          <s-banner tone="success" heading={t?.embed_enabled_heading || "App embed is enabled"}>
+            {(t?.embed_enabled_msg || "The Silverclouding Wishlist embed is active on {theme}.").replace("{theme}", embed.themeName ?? "your theme")}
           </s-banner>
         )}
         {embed.enabled === null && (
@@ -278,7 +281,7 @@ export default function WishlistDashboard() {
       </s-section>
 
       {/* ── Setup checklist ── */}
-      <s-section heading="Setup checklist">
+      <s-section heading={t?.checklist_heading || "Setup checklist"}>
         <s-grid gridTemplateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap="base">
           {blocks.map((block, i) => (
             <s-box key={block.title} border="base" borderRadius="base" padding="base">

@@ -117,13 +117,24 @@
             body: JSON.stringify({ operation, visitorId: getVisitorId(), ...item })
           });
           const data = await res.json().catch(() => ({}));
-          if (res.ok && data.tracked) return;
+          if (res.status === 429 || data?.limitReached || data?.error?.toLowerCase().includes('limit')) {
+            window.silvercloudingLimitReached = true;
+            return { blocked: true };
+          }
+          if (res.ok && data.tracked) return data;
         } catch {}
+        return { blocked: true };
       };
 
       const sync = async (operation, item) => {
+        if (operation === 'add' && window.silvercloudingLimitReached) {
+          return false;
+        }
         if (!customerAuthenticated) {
-          await trackGuest(operation, item);
+          const trackResult = await trackGuest(operation, item);
+          if (operation === 'add' && (!trackResult || trackResult.blocked || !trackResult.tracked)) {
+            return false;
+          }
           return persistLocalFallback(operation, item);
         }
         const res = await fetch(endpoint, {
@@ -132,13 +143,12 @@
           body: JSON.stringify({ operation, visitorId: getVisitorId(), ...item })
         });
 
-        if (res.status === 429) {
-          const data = await res.json().catch(() => ({}));
+        const data = await res.json().catch(() => ({}));
+
+        if (res.status === 429 || data?.limitReached || data?.error?.toLowerCase().includes('limit')) {
+          window.silvercloudingLimitReached = true;
           if (operation === 'remove' || operation === 'clear') return readItems();
-          window.dispatchEvent(new CustomEvent('silverclouding:wishlist-toast', {
-            detail: { message: data.error || {{ 'wishlist.limit_reached' | t | json }} }
-          }));
-          return readItems();
+          return false;
         }
 
         if (!res.ok) {
@@ -226,8 +236,10 @@
             button.disabled = true;
             try {
               const saved = readItems().some((i) => String(i.id) === String(item.productId));
-              await sync(saved ? 'remove' : 'add', item);
-              renderButton(button, item.productId);
+              const result = await sync(saved ? 'remove' : 'add', item);
+              if (result !== false && result !== null) {
+                renderButton(button, item.productId);
+              }
             } catch (err) {
               console.error('Collection wishlist request failed', err);
             } finally {
